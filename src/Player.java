@@ -6,33 +6,24 @@ package src;
  */
 public class Player {
     private final String name;
-    private int score = 0;
+    private int score;
     private static int numberOfPlayers = 0;
-
-    /**
-     * The player constructor with name and score
-     * @param name The name of the player
-     * @param score The score of the player
-     */
-    public Player(String name, int score){
-        this.name = name;
-        this.score = score;
-        numberOfPlayers++;
-    }
 
     /**
      * The player constructor with only name
      * @param name The name of the player
      */
     public Player(String name){
-        this(name,0);
+        this.name = name;
+        this.score = 0;
+        numberOfPlayers++;
     }
 
     /**
      * The player constructor without any parameters
      */
     public Player(){
-        this("Player" + (numberOfPlayers + 1),0);
+        this("Player" + (numberOfPlayers + 1));
     }
 
     /**
@@ -85,14 +76,24 @@ public class Player {
         System.out.println(this.getName() + " | Score : " + this.getScore());
     }
 
+    /**
+     * Returns a String from the player's attributs
+     * @return A String that contains the name and the score of the player
+     */
     @Override
     public String toString(){
-        if(this.score <= 1){
-            return this.name + " : " + this.score + " pt";
+        String str = this.name + " : " + this.score + " pt";
+        if(this.score > 1){
+            str += "s";
         }
-        return this.name + " : " + this.score + " pts";
+        return str;
     }
 
+    /**
+     * Checks if a player is equal to an object
+     * @param obj The object that will be compared to the player
+     * @return true if they are equal or false if they aren't
+     */
     @Override
     public boolean equals(Object obj){
         if(obj == null){

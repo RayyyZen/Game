@@ -6,8 +6,12 @@ package src;
  */
 public class Main {
     
+    /**
+     * The main method
+     * @param args An array of String arguments passed into the main method from the input of the application
+     */
     public static void main(String args[]){
-        System.out.println("\nNombre total de joueurs : " + Player.getNumberOfPlayers() + "\n");
+        System.out.println("\nTotal number of players : " + Player.getNumberOfPlayers() + "\n");
 
         Player player1 = new Player("Alice");
         Player player2 = new Player("Bob");
@@ -29,7 +33,7 @@ public class Main {
         System.out.println(player4);
         System.out.println();
 
-        System.out.println("Nombre total de joueurs : " + Player.getNumberOfPlayers() + "\n");
+        System.out.println("Total number of players : " + Player.getNumberOfPlayers() + "\n");
 
         //Tests equals
 
@@ -42,5 +46,7 @@ public class Main {
         System.out.println(player2.equals(playerTmp1));
         System.out.println(player2 == playerTmp1);
         System.out.println(player2.equals(playerTmp2));
+
+        //End of tests
     }
 }

@@ -2,6 +2,8 @@ package src;
 
 /**
  * The main class
+ * @version 1.1 (First world)
+ * @since 1.0
  * @author Rayane
  */
 public class Main {
@@ -24,8 +26,8 @@ public class Main {
         System.out.println(player4);
         System.out.println();
 
-        player1.addScore(50);
-        player2.reduceScore(90);
+        player1.modifyScore(50);
+        player2.modifyScore(-90);
 
         System.out.println(player1);
         System.out.println(player2);
@@ -46,6 +48,7 @@ public class Main {
         System.out.println(player2.equals(playerTmp1));
         System.out.println(player2 == playerTmp1);
         System.out.println(player2.equals(playerTmp2));
+        System.out.println("");
 
         //End of tests
     }

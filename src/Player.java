@@ -1,16 +1,29 @@
 package src;
 
 /**
- * The player class
+ * The player class that contains his name, his current score and the total number of players that were created
+ * @since 1.0
  * @author Rayane
  */
 public class Player {
+
+    /**
+     * The name of the player
+     */
     private final String name;
+
+    /**
+     * The current score of the player (it is always a positive integer)
+     */
     private int score;
+
+    /**
+     * The number of players that were created
+     */
     private static int numberOfPlayers = 0;
 
     /**
-     * The player constructor with only name
+     * The player constructor that takes as an argument only a name
      * @param name The name of the player
      */
     public Player(String name){
@@ -20,7 +33,7 @@ public class Player {
     }
 
     /**
-     * The player constructor without any parameters
+     * The player constructor that doesn't take any arguments and automatically generates his name
      */
     public Player(){
         this("Player" + (numberOfPlayers + 1));
@@ -51,33 +64,19 @@ public class Player {
     }
 
     /**
-     * Adds a score to the player's current score
-     * @param score The score that will be added to the player's score
+     * Either adds or substracts a score from the player's current score
+     * If the score is positive it will be added to the player and if it is negative it will be deducted from him
+     * @param score The score that will be added to or deducted from the player's score, depending on its sign
      */
-    public void addScore(int score){
+    public void modifyScore(int score){
         this.score += score;
-    }
-
-    /**
-     * Substract a score from the player's current score
-     * @param score The score that will be deducted from the player's score
-     */
-    public void reduceScore(int score){
-        this.score -= score;
         if(this.score < 0){
             this.score = 0;
         }
     }
 
     /**
-     * Displays the player's name and score
-     */
-    public void displayPlayer(){
-        System.out.println(this.getName() + " | Score : " + this.getScore());
-    }
-
-    /**
-     * Returns a String from the player's attributs
+     * Returns a String that contains the player's name and score with a certain format
      * @return A String that contains the name and the score of the player
      */
     @Override
@@ -105,6 +104,7 @@ public class Player {
         else if(!(obj instanceof Player)){
             return false;
         }
+
         Player player = (Player)obj;
         if(this.name.toLowerCase().equals(player.getName().toLowerCase())){
             return true;

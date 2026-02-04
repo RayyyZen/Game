@@ -1,4 +1,4 @@
-package src;
+package com.app;
 
 /**
  * The player class that contains his name, his current score and the total number of players that were created
@@ -95,14 +95,11 @@ public class Player {
      */
     @Override
     public boolean equals(Object obj){
-        if(obj == null){
+        if(obj == null || !(obj instanceof Player)){
             return false;
         }
         else if(obj == this){
             return true;
-        }
-        else if(!(obj instanceof Player)){
-            return false;
         }
 
         Player player = (Player)obj;

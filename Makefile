@@ -3,6 +3,7 @@ JAVAFILES = src/com/app/*.java
 MAIN = com.app.Main
 CLASSDIR = class
 JAR = game.jar
+DOC = doc
 
 .PHONY: all run clean
 
@@ -21,5 +22,8 @@ jar: all
 runJar: jar
 	java -jar $(JAR) $(PARAM)
 
+$(DOC) : $(JAVAFILES)
+	@ javadoc -d $@ -author -encoding UTF-8 $(JAVAFILES)
+
 clean:
-	rm -rf $(CLASSDIR) $(JAR)
+	rm -rf $(CLASSDIR) $(DOC) $(JAR)

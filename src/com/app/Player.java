@@ -2,6 +2,7 @@ package com.app;
 
 /**
  * The player class that contains his name, his current score and the total number of players that were created
+ * @version 2.1 (Second world)
  * @since 1.0
  * @author Rayane
  */
@@ -97,15 +98,12 @@ public class Player {
     public boolean equals(Object obj){
         if(obj == null || !(obj instanceof Player)){
             return false;
-        }
-        else if(obj == this){
+        
+        } else if(obj == this) {
             return true;
         }
 
         Player player = (Player)obj;
-        if(this.name.toLowerCase().equals(player.getName().toLowerCase())){
-            return true;
-        }
-        return false;
+        return this.name.toLowerCase().equals(player.getName().toLowerCase());
     }
 }

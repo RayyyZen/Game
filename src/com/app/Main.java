@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 /**
  * The main class
- * @version 2.0 (Second world)
+ * @version 2.1 (Second world)
  * @since 1.0
  * @author Rayane
  */
@@ -38,27 +38,28 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         //The class that will be used to get the user's inputs
 
-        char input;
+        String input;
         //The user's input
 
         do{
 
-            System.out.print("\033[2J\033[H");
-            // \033[2J : clears the screen
+            System.out.print("\033[H\033[2J\033[3J");
             // \033[H : moves the cursor to the top left
+            // \033[2J : erase screen
+            // \033[3J : erase saved lines
 
             System.out.println(level);
 
             View.displayControls();
 
-            input = scanner.next().charAt(0);
-            //To get the first letter of the user's input
+            input = scanner.nextLine();
+            //To get the user's input
 
-            level.move(View.charToDirection(input));
+            level.move(View.inputToDirection(input));
             
         }while(!View.endGame(input));
 
-        System.out.println("\nYou left the game\n");
+        System.out.println("\nYou left the game !\n");
 
         scanner.close();
     }

@@ -2,7 +2,7 @@ package com.app;
 
 /**
  * The coordinates class that contains a specific position (line and column) on the grid that contains the level
- * @version 2.0 (Second world)
+ * @version 2.1 (Second world)
  * @since 2.0
  * @author Rayane
  */
@@ -19,7 +19,7 @@ public class Coordinates {
     private int column;
 
     /**
-     * Checks if the line and column given as arguments are positive and throws a not checked exception in case they are not
+     * Checks if the line and column given as arguments are positive and throws an unchecked exception in case they are not
      * @param line A specific line on the grid
      * @param column A specific column on the grid
      */
@@ -75,5 +75,32 @@ public class Coordinates {
         checkCoordinates(this.line,column);
 
         this.column = column;
+    }
+
+    /**
+     * Returns a String that contains some specific coordinates on the level's grid
+     * @return A String that contains the line and the column of a specific position of the level's grid
+     */
+    @Override
+    public String toString(){
+        return "Coordinates -> Line : " + this.line + " | Column : " + this.column;
+    }
+
+    /**
+     * Checks if the coordinates are equal to an object
+     * @param obj The object that will be compared to the coordinates
+     * @return true if they are equal or false if they aren't
+     */
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null || !(obj instanceof Coordinates)){
+            return false;
+
+        } else if(obj == this) {
+            return true;
+        }
+
+        Coordinates coordinates = (Coordinates)obj;
+        return this.line == coordinates.line && this.column == coordinates.column;
     }
 }

@@ -2,7 +2,7 @@ package com.app;
 
 /**
  * The class that manages the user's inputs and the displays
- * @version 2.0 (Second world)
+ * @version 2.1 (Second world)
  * @since 2.0
  * @author Rayane
  */
@@ -19,26 +19,22 @@ public class View {
     }
 
     /**
-     * Converts a character to an actual direction that will be taken by the player
-     * @param car The character that symbolizes a certain direction
+     * Converts an input into an actual direction that will be taken by the player
+     * @param str The user's input that symbolizes a certain direction
      * @return The direction that will be taken by the player
      */
-    public static Direction charToDirection(char car){
-        switch(car){
-            case 'z' :
-            case 'Z' :
+    public static Direction inputToDirection(String str){
+        switch(str.toLowerCase()){
+            case "z" :
                 return Direction.UP;
 
-            case 's' :
-            case 'S' :
+            case "s" :
                 return Direction.DOWN;
 
-            case 'q' :
-            case 'Q' :
+            case "q" :
                 return Direction.LEFT;
 
-            case 'd' :
-            case 'D' :
+            case "d" :
                 return Direction.RIGHT;
 
             default :
@@ -63,13 +59,10 @@ public class View {
 
     /**
      * Checks if the user left the game according to his input
-     * @param car The first letter of the input's user
+     * @param str The user's input
      * @return true if the input refers to a control that allows the user to leave the game, or false otherwise
      */
-    public static boolean endGame(char car){
-        String leave = "Ll";
-        //The games controls that can be used to leave the game
-
-        return leave.contains("" + car);
+    public static boolean endGame(String str){
+        return str.toLowerCase().equals("l");
     }
 }

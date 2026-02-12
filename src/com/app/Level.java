@@ -2,6 +2,7 @@ package com.app;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Objects;
 
 /**
  * The enumeration that contains the direction the player wants to take
@@ -16,21 +17,11 @@ enum Direction {
 
 /**
  * The level class that contains the grid (map) and a unique player who will play on it
- * @version 2.0 (Second world)
+ * @version 2.1 (Second world)
  * @since 2.0
  * @author Rayane
  */
 public class Level {
-
-    /**
-     * The length of the level's grid
-     */
-    private int length;
-
-    /**
-     * The width of the level's grid
-     */
-    private int width;
 
     /**
      * The grid that contains the level's map
@@ -52,7 +43,7 @@ public class Level {
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
-    public boolean validContent(String content){
+    private boolean validContent(String content){
         String validSymbols = "1 #\n";
         //All the valid symbols that are allowed in the file
 
@@ -71,12 +62,8 @@ public class Level {
             }
         }
 
-        if(counter != 1){
-            //There isn't a unique player on the level's grid
-            return false;
-        }
-
-        return true;
+        return counter == 1;
+        //There is a unique player on the level's grid
     }
 
     /**
@@ -95,7 +82,7 @@ public class Level {
         //This line can throw an IOException
 
         if(!validContent(content)){
-            throw new IllegalArgumentException("The file's content is not valid, it must containt only those symbols : ' ', '#' and '\n' with a unique occurence of '1'");
+            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#' and '\\n' with a unique occurence of '1'");
         }
 
         int lines = 1;
@@ -116,8 +103,8 @@ public class Level {
                 
                 lines++;
                 counter = 0;
-            }
-            else{
+
+            } else {
                 counter++;
             }
         }
@@ -139,8 +126,8 @@ public class Level {
                 line++;
                 //Move to the next line of the grid
                 column = 0;
-            }
-            else{
+
+            } else {
                 char tmpCar = car;
 
                 if(car == '1'){
@@ -158,8 +145,6 @@ public class Level {
             }
         }
 
-        this.length = lines;
-        this.width = maxLineLength;
         this.grid = grid;
         this.player = player;
         this.coordinates = new Coordinates(playerLine,playerColumn);
@@ -171,33 +156,36 @@ public class Level {
      */
     public void move(Direction direction){
 
-        int line = this.coordinates.getLine();
-        int column = this.coordinates.getColumn();
+        int playerLine = this.coordinates.getLine();
+        int playerColumn = this.coordinates.getColumn();
         //Gets the player's coordinates
+
+        int lines = this.grid.length;
+        int columns = this.grid[playerLine].length;
 
         switch(direction){
 
             case UP :
-                if(line > 0 && this.grid[line - 1][column] != '#'){
-                    this.coordinates.setLine(line - 1);
+                if(playerLine > 0 && this.grid[playerLine - 1][playerColumn] != '#'){
+                    this.coordinates.setLine(playerLine - 1);
                 }
                 break;
 
             case DOWN :
-                if(line < this.length - 1 && this.grid[line + 1][column] != '#'){
-                    this.coordinates.setLine(line + 1);
+                if(playerLine < lines - 1 && this.grid[playerLine + 1][playerColumn] != '#'){
+                    this.coordinates.setLine(playerLine + 1);
                 }
                 break;
 
             case LEFT :
-                if(column > 0 && this.grid[line][column - 1] != '#'){
-                    this.coordinates.setColumn(column - 1);
+                if(playerColumn > 0 && this.grid[playerLine][playerColumn - 1] != '#'){
+                    this.coordinates.setColumn(playerColumn - 1);
                 }
                 break;
 
             case RIGHT :
-                if(column < this.width - 1 && this.grid[line][column + 1] != '#'){
-                    this.coordinates.setColumn(column + 1);
+                if(playerColumn < columns - 1 && this.grid[playerLine][playerColumn + 1] != '#'){
+                    this.coordinates.setColumn(playerColumn + 1);
                 }
                 break;
         }
@@ -210,21 +198,59 @@ public class Level {
      */
     @Override
     public String toString(){
-        String string= "";
+        StringBuilder string = new StringBuilder();
 
-        for(int i = 0; i < this.length; i++){
-            for(int j = 0; j < this.width; j++){
+        for(int i = 0; i < this.grid.length; i++){
+            for(int j = 0; j < this.grid[i].length; j++){
                 if(i == this.coordinates.getLine() && j == this.coordinates.getColumn()){
                     //If this code is reached it means that this position is the player's one
-                    string += "1";
-                }
-                else{
-                    string += grid[i][j];
+                    string.append("1");
+                    
+                } else {
+                    string.append(grid[i][j]);
                 }
             }
-            string += "\n";
+            string.append("\n");
         }
 
-        return string;
+        return string.toString();
+    }
+
+    /**
+     * Checks if a level is equal to an object
+     * @param obj The object that will be compared to the level
+     * @return true if they are equal or false if they aren't
+     */
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null || !(obj instanceof Level)){
+            return false;
+
+        } else if(this == obj) {
+            return true;
+        }
+
+        Level level = (Level)obj;
+
+        if(this.grid.length != level.grid.length || !Objects.equals(this.player,level.player) || !Objects.equals(this.coordinates,level.coordinates)){
+            //Use of Objects.equals(a,b) instead of a != null && a.equals(b)
+            return false;
+        }
+        //If we are here it means this.grid.length == level.grid.length
+
+        for(int i = 0; i < this.grid.length; i++){
+            if(this.grid[i].length != level.grid[i].length){
+                return false;
+            }
+            //If we are here it means this.grid[i].length == level.grid[i].length
+
+            for(int j = 0; j < this.grid[i].length; j++){
+                if(this.grid[i][j] != level.grid[i][j]){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

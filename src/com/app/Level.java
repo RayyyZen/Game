@@ -2,7 +2,6 @@ package com.app;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.Objects;
 
 /**
  * The enumeration that contains the direction the player wants to take
@@ -17,7 +16,7 @@ enum Direction {
 
 /**
  * The level class that contains the grid (map) and a unique player who will play on it
- * @version 2.1 (Second world)
+ * @version 3.0 (Third world)
  * @since 2.0
  * @author Rayane
  */
@@ -26,7 +25,7 @@ public class Level {
     /**
      * The grid that contains the level's map
      */
-    private char[][] grid;
+    public Cell[][] grid;
 
     /**
      * The player that will play the level
@@ -34,17 +33,28 @@ public class Level {
     private Player player;
 
     /**
-     * The coordinates of the player on the level's grid
+     * The number of coins that the level has
+     * We use this variable to see how many coins are left in the level to avoid iterating through the level's grid each time
      */
-    private Coordinates coordinates;
+    private int numberOfCoins;
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#' and '\n' with a unique occurence of '1')
+     * Number of points (score) that the player's gain from a coin
+     */
+    private static final int COIN = 10;
+
+    /**
+     * Number of hearts that the player looses from falling into a trap
+     */
+    private static final int TRAP = -2;
+
+    /**
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D' and '\n' with a unique occurence of '1')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
     private boolean validContent(String content){
-        String validSymbols = "1 #\n";
+        String validSymbols = "1 #*.D\n";
         //All the valid symbols that are allowed in the file
 
         int counter = 0;
@@ -112,42 +122,90 @@ public class Level {
         int line = 0, column = 0;
         int playerLine = -1, playerColumn = -1;
         int length = lines, width = maxLineLength;
-        char[][] grid = new char[length][width];
+        int numberOfCoins = 0;
+        Cell[][] grid = new Cell[length][width];
 
         for(int index = 0; index < content.length(); index++){
+
             char car = content.charAt(index);
 
-            if(car == '\n'){
-                for(int col = column; col < width; col++){
-                    grid[line][col] = ' ';
-                    //Complete the line with ' ' symbol
-                }
+            Coordinates coordinates = new Coordinates(line,column);
 
-                line++;
-                //Move to the next line of the grid
-                column = 0;
+            switch(car){
 
-            } else {
-                char tmpCar = car;
+                case '\n' :
+                    for(int col = column; col < width; col++){
+                        grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false);
+                        //Complete the line with ' ' symbol
+                    }
 
-                if(car == '1'){
+                    line++;
+                    //Move to the next line of the grid
+                    column = 0;
+                    break;
+
+                case '*' :
+                    grid[line][column] = new Cell(coordinates, CellType.TRAP, false);
+                    break;
+
+                case '1' :
                     playerLine = line;
                     playerColumn = column;
                     //Get the player's coordinates
                     //If this code is reached it means that the file is valid so there is a unique player on the grid
 
-                    tmpCar = ' ';
-                }
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false);
+                    break;
 
-                grid[line][column] = tmpCar;
+                case '.' :
+                    numberOfCoins++;
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, true);
+                    break;
+
+                case ' ' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false);
+                    break;
+
+                case '#' :
+                    grid[line][column] = new Cell(coordinates, CellType.WALL, false);
+                    break;
+
+                case 'D' :
+                    grid[line][column] = new Cell(coordinates, CellType.LOCKED_DOOR, false);
+                    break;
+
+            }
+
+            if(car != '\n'){
                 column++;
                 //Move to the next column of the grid
             }
+
         }
 
         this.grid = grid;
         this.player = player;
-        this.coordinates = new Coordinates(playerLine,playerColumn);
+        this.player.setCoordinates(playerLine,playerColumn);
+        this.player.setSpawnCoordinates(playerLine,playerColumn);
+        this.numberOfCoins = numberOfCoins;
+    }
+
+    /**
+     * Returns the number of coins the level contains
+     * @return The number of coins the level contains
+     */
+    public int getNumberOfCoins(){
+        return this.numberOfCoins;
+    }
+
+    /**
+     * Checks if the player can move on a specific cell
+     * @param cell A specific cell from the grid
+     * @return true if the player can move on the cell, or false otherwise
+     */
+    private boolean validMovement(Cell cell){
+        CellType type = cell.getType();
+        return type == CellType.EMPTY || type == CellType.TRAP;
     }
 
     /**
@@ -156,8 +214,8 @@ public class Level {
      */
     public void move(Direction direction){
 
-        int playerLine = this.coordinates.getLine();
-        int playerColumn = this.coordinates.getColumn();
+        int playerLine = this.player.getCurrentLine();
+        int playerColumn = this.player.getCurrentColumn();
         //Gets the player's coordinates
 
         int lines = this.grid.length;
@@ -166,30 +224,69 @@ public class Level {
         switch(direction){
 
             case UP :
-                if(playerLine > 0 && this.grid[playerLine - 1][playerColumn] != '#'){
-                    this.coordinates.setLine(playerLine - 1);
-                }
+                playerLine--;
                 break;
 
             case DOWN :
-                if(playerLine < lines - 1 && this.grid[playerLine + 1][playerColumn] != '#'){
-                    this.coordinates.setLine(playerLine + 1);
-                }
+                playerLine++;
                 break;
 
             case LEFT :
-                if(playerColumn > 0 && this.grid[playerLine][playerColumn - 1] != '#'){
-                    this.coordinates.setColumn(playerColumn - 1);
-                }
+                playerColumn--;
                 break;
 
             case RIGHT :
-                if(playerColumn < columns - 1 && this.grid[playerLine][playerColumn + 1] != '#'){
-                    this.coordinates.setColumn(playerColumn + 1);
-                }
+                playerColumn++;
                 break;
+
+            default :
+                return;
+
         }
 
+        int line = (playerLine + lines) % lines;
+        //The line range will be [0,lines-1] so it is on the grid
+        int column = (playerColumn + columns) % columns;
+        //The column range will be [0,columns-1] so it is on the grid
+
+        if(this.validMovement(this.grid[line][column])){
+            this.player.setCoordinates(line,column);
+        }
+
+    }
+
+    /**
+     * This function launches an action according to the object that is on the same cell as the player
+     */
+    public void effect(){
+        int playerLine = this.player.getCurrentLine(), playerColumn = this.player.getCurrentColumn();
+        //Get the player's coordinates
+
+        Cell cell = this.grid[playerLine][playerColumn];
+        //Get the cell that the player is located on
+
+        if(cell.getType() == CellType.TRAP){
+            this.player.modifyNumberOfHearts(TRAP);
+            cell.setType(CellType.EMPTY);;
+
+            this.player.setCoordinates(this.player.getSpawnLine(),this.player.getSpawnColumn());
+            //Brings the player to the spawn
+        }
+
+        if(cell.containsCoin()){
+            this.player.modifyScore(COIN);
+            cell.removeCoin();
+            this.numberOfCoins--;
+        }
+
+    }
+
+    /**
+     * Checks if the player still has some hearts
+     * @return true if the player doesn't have any hearts, or else otherwise
+     */
+    public boolean gameOver(){
+        return this.player.getNumberOfHearts() <= 0;
     }
 
     /**
@@ -202,18 +299,43 @@ public class Level {
 
         for(int i = 0; i < this.grid.length; i++){
             for(int j = 0; j < this.grid[i].length; j++){
-                if(i == this.coordinates.getLine() && j == this.coordinates.getColumn()){
+                if(i == this.player.getCurrentLine() && j == this.player.getCurrentColumn()){
                     //If this code is reached it means that this position is the player's one
                     string.append("1");
                     
+                } else if(i == this.player.getSpawnLine() && j == this.player.getSpawnColumn()) {
+                    string.append("S");
+
                 } else {
-                    string.append(grid[i][j]);
+
+                    switch(this.grid[i][j].getType()){
+                        case WALL :
+                            string.append("#");
+                            break;
+
+                        case TRAP :
+                            string.append("*");
+                            break;
+
+                        case LOCKED_DOOR :
+                            string.append("D");
+                            break;
+
+                        default : //EMPTY
+                            if(this.grid[i][j].containsCoin()){
+                                string.append(".");
+                            }
+                            else{
+                                string.append(" ");
+                            }
+                    }
+
                 }
             }
             string.append("\n");
         }
 
-        return string.toString();
+        return string.toString() + "\n" + this.player + "\n";
     }
 
     /**
@@ -232,7 +354,7 @@ public class Level {
 
         Level level = (Level)obj;
 
-        if(this.grid.length != level.grid.length || !Objects.equals(this.player,level.player) || !Objects.equals(this.coordinates,level.coordinates)){
+        if(this.grid.length != level.grid.length){
             //Use of Objects.equals(a,b) instead of a != null && a.equals(b)
             return false;
         }
@@ -245,7 +367,7 @@ public class Level {
             //If we are here it means this.grid[i].length == level.grid[i].length
 
             for(int j = 0; j < this.grid[i].length; j++){
-                if(this.grid[i][j] != level.grid[i][j]){
+                if(!this.grid[i][j].equals(level.grid[i][j])){
                     return false;
                 }
             }

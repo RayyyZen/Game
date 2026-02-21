@@ -2,7 +2,7 @@ package com.app;
 
 /**
  * The class that manages the user's inputs and the displays
- * @version 2.1 (Second world)
+ * @version 3.0 (Third world)
  * @since 2.0
  * @author Rayane
  */
@@ -54,7 +54,40 @@ public class View {
         System.out.println("----> 'q' Or 'Q' : Left");
         System.out.println("----> 'd' Or 'D' : Right\n");
         System.out.println("----> 'l' Or 'L' : Leave\n");
-        System.out.print("-> Choose  : ");
+    }
+
+    /**
+     * Display all the elements needed on the screen (The grid, the controls and the player's attributs)
+     * @param level The level which is played by the player
+     */
+    public static void displayScreen(Level level){
+        System.out.print("\033[H\033[2J\033[3J");
+        // \033[H : moves the cursor to the top left
+        // \033[2J : erase screen
+        // \033[3J : erase saved lines
+
+        System.out.println(level);
+
+        displayControls();
+    }
+
+    /**
+     * Display the end screen
+     * @param level The level which is played by the player
+     */
+    public static void displayEndScreen(Level level){
+        View.displayScreen(level);
+
+        if(level.gameOver()){
+            System.out.println("-> Game over !\n");
+
+        } else if(level.getNumberOfCoins() <= 0) {
+            System.out.println("-> You finished the game ! Thank you for playing !\n");
+            
+        } else {
+            System.out.println("-> You left the game\n");
+        }
+        
     }
 
     /**

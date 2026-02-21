@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 /**
  * The main class
- * @version 2.1 (Second world)
+ * @version 3.0 (Third world)
  * @since 1.0
  * @author Rayane
  */
@@ -18,48 +18,69 @@ public class Main {
      */
     public static void main(String args[]){
 
-        if(args.length != 1){
-            View.displayAndExit("Invalid arguments ! You must provide as an argument the path of a file that will be used to create the level", 2);
+        if(args.length == 0){
+            View.displayAndExit("No arguments ! You must provide as an argument the paths of the files that will be used to create the levels", 2);
         }
 
-        Player player = new Player();
-        Level level = null;
-
-        try{
-            level = new Level(args[0],player);
-        }
-        catch(IOException e){
-            View.displayAndExit("The file's content can't be accessed", 3);
-        }
-        catch(IllegalArgumentException e){
-            View.displayAndExit(e.getMessage(), 4);
-        }
+        int numberOfLevels = args.length;
 
         Scanner scanner = new Scanner(System.in);
         //The class that will be used to get the user's inputs
 
-        String input;
+        String input = null;
         //The user's input
+
+        System.out.print("\n--> Enter your username : ");
+        String name = scanner.nextLine();
 
         do{
 
-            System.out.print("\033[H\033[2J\033[3J");
-            // \033[H : moves the cursor to the top left
-            // \033[2J : erase screen
-            // \033[3J : erase saved lines
+            Player player = new Player(name);
+            Level level = null;
 
-            System.out.println(level);
+            int index = -1;
 
-            View.displayControls();
+            do{
 
+                if(index == -1 || (index < numberOfLevels - 1 && level.getNumberOfCoins() < 1)){
+                    try{
+                        index++;
+                        level = new Level(args[index],player);
+                    }
+                    catch(IOException e){
+                        View.displayAndExit("The file's content can't be accessed", 3);
+                    }
+                    catch(IllegalArgumentException e){
+                        View.displayAndExit(e.getMessage(), 4);
+                    } 
+                }
+
+                if(index == numberOfLevels - 1 && level.getNumberOfCoins() < 1){
+                    break;
+                }
+
+                View.displayScreen(level);
+
+                System.out.print("-> Choose  : ");
+                input = scanner.nextLine();
+                //To get the user's input
+
+                level.move(View.inputToDirection(input));
+                level.effect();
+
+            }while(!View.endGame(input) && player.getNumberOfHearts() > 0);
+
+            View.displayEndScreen(level);
+
+            if(player.getNumberOfHearts() > 0 || input.toLowerCase().equals("l")){
+                //It means the player has finished the levels or he wants to leave
+                break;
+            }
+
+            System.out.print("--> Press 'r' to restart or anything else to leave : ");
             input = scanner.nextLine();
-            //To get the user's input
 
-            level.move(View.inputToDirection(input));
-            
-        }while(!View.endGame(input));
-
-        System.out.println("\nYou left the game !\n");
+        }while(input.toLowerCase().equals("r"));
 
         scanner.close();
     }

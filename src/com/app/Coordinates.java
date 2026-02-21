@@ -23,7 +23,7 @@ public class Coordinates {
      * @param line A specific line on the grid
      * @param column A specific column on the grid
      */
-    public void checkCoordinates(int line, int column){
+    private void checkCoordinates(int line, int column){
         if(line < 0 || column < 0){
             throw new IllegalArgumentException("The coordinates on the grid can't be negative");
         }

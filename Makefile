@@ -1,7 +1,7 @@
 CC = javac
 JAVAFILES = src/com/app/*.java
 MAIN = com.app.Main
-CLASSDIR = class
+CLASSDIR = bin
 JAR = game.jar
 DOC = doc
 

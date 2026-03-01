@@ -293,6 +293,7 @@ public class Level {
      * Returns a String that contains level's grid with the player on it
      * @return A String that contains level's structure and the player on it
      */
+    /*
     @Override
     public String toString(){
         StringBuilder string = new StringBuilder();
@@ -331,6 +332,60 @@ public class Level {
                     }
 
                 }
+            }
+            string.append("\n");
+        }
+
+        return string.toString() + "\n" + this.player + "\n";
+    }
+    */
+
+     /**
+     * Returns a String that contains level's grid with the player on it
+     * @return A String that contains level's structure and the player on it
+     */
+    @Override
+    public String toString(){
+        StringBuilder string = new StringBuilder();
+
+        for(int i = 0; i < this.grid.length; i++){
+            for(int j = 0; j < this.grid[i].length; j++){
+                if(i == this.player.getCurrentLine() && j == this.player.getCurrentColumn()){
+                    //If this code is reached it means that this position is the player's one
+                    string.append("👾");
+                    
+                } else if(i == this.player.getSpawnLine() && j == this.player.getSpawnColumn()) {
+                    string.append("🌀");
+
+                } else {
+
+                    switch(this.grid[i][j].getType()){
+                        case WALL :
+                            string.append("🔳");
+                            break;
+
+                        case TRAP :
+                            // 🕸🧨⛓🔗💣⚓♨🧷🌫🕳💢
+                            string.append("🔗");
+                            break;
+
+                        case LOCKED_DOOR :
+                            //🚪🔓🔓🔑🗝
+                            string.append("🔐");
+                            break;
+
+                        default : //EMPTY
+                            if(this.grid[i][j].containsCoin()){
+                                // 👛📀🟡
+                                string.append("📀");
+                            }
+                            else{
+                                string.append("  ");
+                            }
+                    }
+
+                }
+                
             }
             string.append("\n");
         }

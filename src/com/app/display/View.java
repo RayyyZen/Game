@@ -1,4 +1,9 @@
-package com.app;
+package com.app.display;
+
+import java.util.List;
+
+import com.app.level.Direction;
+import com.app.level.Level;
 
 /**
  * The class that manages the user's inputs and the displays
@@ -56,17 +61,29 @@ public class View {
         System.out.println("----> 'l' Or 'L' : Leave\n");
     }
 
+    private static void displayEnnemies(List<String> names){
+        if(names != null && !names.isEmpty()){
+            System.out.println("-> You were hitted by : \n");
+            for(String enemyName : names){
+                System.out.println("--> " + enemyName);
+            }
+            System.out.println("");
+        }
+    }
+
     /**
      * Display all the elements needed on the screen (The grid, the controls and the player's attributs)
      * @param level The level which is played by the player
      */
-    public static void displayScreen(Level level){
+    public static void displayScreen(Level level, List<String> names){
         System.out.print("\033[H\033[2J\033[3J");
         // \033[H : moves the cursor to the top left
         // \033[2J : erase screen
         // \033[3J : erase saved lines
 
         System.out.println(level);
+
+        displayEnnemies(names);
 
         displayControls();
     }
@@ -75,8 +92,8 @@ public class View {
      * Display the end screen
      * @param level The level which is played by the player
      */
-    public static void displayEndScreen(Level level){
-        View.displayScreen(level);
+    public static void displayEndScreen(Level level, List<String> names){
+        View.displayScreen(level,names);
 
         if(level.gameOver()){
             System.out.println("-> Game over !\n");

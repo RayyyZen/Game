@@ -1,14 +1,4 @@
-package com.app;
-
-/**
- * The enumeration that contains the type of each cell on the level's grid
- */
-enum CellType {
-    EMPTY,
-    WALL,
-    TRAP,
-    LOCKED_DOOR
-}
+package com.app.cell;
 
 /**
  * The cell class that contains its coordinates, its type and eventually a coin
@@ -120,6 +110,11 @@ public class Cell {
 
         Cell cell = (Cell) obj;
 
-        return this.coordinates.equals(cell.coordinates) && this.type == cell.type && this.containsCoin == cell.containsCoin;
+        return this.coordinates.equals(cell.coordinates);
+    }
+
+    @Override
+    public int hashCode(){
+        return this.coordinates.hashCode();
     }
 }

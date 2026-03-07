@@ -1,6 +1,7 @@
 CC = javac
-JAVAFILES = src/com/app/*.java
 MAIN = com.app.Main
+SRCDIR = src
+TARGET = src/com/app/Main.java
 CLASSDIR = bin
 JAR = game.jar
 DOC = doc
@@ -8,7 +9,7 @@ DOC = doc
 .PHONY: all run clean
 
 all: $(CLASSDIR)
-	$(CC) -d $< $(JAVAFILES)
+	$(CC) -d $< -sourcepath $(SRCDIR) $(TARGET)
 
 $(CLASSDIR):
 	mkdir -p $@
@@ -23,7 +24,7 @@ runJar: jar
 	java -jar $(JAR) $(PARAM)
 
 $(DOC) : $(JAVAFILES)
-	@ javadoc -d $@ -author -encoding UTF-8 $(JAVAFILES)
+	@ javadoc -d $@ -author -encoding UTF-8 $(find $(SRCDIR) -name "*.java")
 
 clean:
 	rm -rf $(CLASSDIR) $(DOC) $(JAR)

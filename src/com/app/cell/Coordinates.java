@@ -1,4 +1,4 @@
-package com.app;
+package com.app.cell;
 
 /**
  * The coordinates class that contains a specific position (line and column) on the grid that contains the level
@@ -102,5 +102,13 @@ public class Coordinates {
 
         Coordinates coordinates = (Coordinates)obj;
         return this.line == coordinates.line && this.column == coordinates.column;
+    }
+
+    @Override
+    public int hashCode(){
+        int result = 17;
+        result = 31 * result + this.line;
+        result = 31 * result + this.column;
+        return result;
     }
 }

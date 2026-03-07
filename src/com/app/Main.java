@@ -1,7 +1,12 @@
 package com.app;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
+
+import com.app.display.View;
+import com.app.entity.Player;
+import com.app.level.Level;
 
 /**
  * The main class
@@ -40,6 +45,8 @@ public class Main {
 
             int index = -1;
 
+            List<String> names = null;
+
             do{
 
                 if(index == -1 || (index < numberOfLevels - 1 && level.getNumberOfCoins() < 1)){
@@ -59,18 +66,26 @@ public class Main {
                     break;
                 }
 
-                View.displayScreen(level);
+                View.displayScreen(level,names);
 
                 System.out.print("-> Choose  : ");
                 input = scanner.nextLine();
                 //To get the user's input
 
-                level.move(View.inputToDirection(input));
+                if(View.endGame(input)){
+                    break;
+                }
+
+                level.movePlayer(View.inputToDirection(input));
+                level.moveAllEnemies();
+
+                names = level.getEnemiesAttributes();
+
                 level.effect();
 
             }while(!View.endGame(input) && player.getNumberOfHearts() > 0);
 
-            View.displayEndScreen(level);
+            View.displayEndScreen(level,names);
 
             if(player.getNumberOfHearts() > 0 || input.toLowerCase().equals("l")){
                 //It means the player has finished the levels or he wants to leave

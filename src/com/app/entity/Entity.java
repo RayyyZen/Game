@@ -1,13 +1,10 @@
-package com.app;
+package com.app.entity;
 
-/**
- * The player class that contains his name, the number of hearts he has, his current score, his spawn and current coordinates on a level's grid and the total number of players that were created
- * @version 3.0 (Third world)
- * @since 1.0
- * @author Rayane
- */
-public class Player {
+import com.app.cell.Cell;
+import com.app.cell.Coordinates;
 
+public abstract class Entity {
+    
     /**
      * The name of the player
      */
@@ -19,11 +16,6 @@ public class Player {
     private int numberOfHearts;
 
     /**
-     * The current score of the player (it is always a positive integer)
-     */
-    private int score;
-
-    /**
      * The current coordinates of the player on a level's grid
      */
     private Coordinates coordinates;
@@ -33,35 +25,11 @@ public class Player {
      */
     private Coordinates spawnCoordinates;
 
-    /**
-     * The number of players that were created
-     */
-    private static int numberOfPlayers = 0;
-
-    /**
-     * The number of hearts that each player initially has
-     */
-    private static final int HEARTS = 5;
-
-    /**
-     * The player constructor that takes as an argument only a name
-     * @param name The name of the player
-     */
-    public Player(String name){
+    public Entity(String name, int numberOfHearts){
         this.name = name;
-        this.numberOfHearts = HEARTS;
-        this.score = 0;
+        this.numberOfHearts = numberOfHearts;
         this.coordinates = null;
         this.spawnCoordinates = null;
-        //The player isn't initially on any level
-        numberOfPlayers++;
-    }
-
-    /**
-     * The player constructor that doesn't take any arguments and automatically generates his name
-     */
-    public Player(){
-        this("Player" + (numberOfPlayers + 1));
     }
 
     /**
@@ -78,14 +46,6 @@ public class Player {
      */
     public int getNumberOfHearts(){
         return this.numberOfHearts;
-    }
-
-    /**
-     * Returns the score of the player
-     * @return The score of the player
-     */
-    public int getScore(){
-        return this.score;
     }
 
     /**
@@ -135,20 +95,12 @@ public class Player {
     }
 
     /**
-     * Returns the number of players created
-     * @return The number of players created
-     */
-    public static int getNumberOfPlayers(){
-        return numberOfPlayers;
-    }
-
-    /**
      * Modify a number by adding or deducting from him a specific value
      * @param number The number that will be modified
      * @param modify The value that will be added or deducted from the number
      * @return The modified number
      */
-    private int modifyNumber(int number, int modify){
+    protected int modifyNumber(int number, int modify){
         number += modify;
         if(number < 0){
             number = 0;
@@ -164,15 +116,6 @@ public class Player {
      */
     public void modifyNumberOfHearts(int numberOfHearts){
         this.numberOfHearts = modifyNumber(this.numberOfHearts,numberOfHearts);
-    }
-
-    /**
-     * Either adds or substracts a score from the player's current score
-     * If the score is positive it will be added to the player and if it is negative it will be deducted from him
-     * @param score The score that will be added to or deducted from the player's score, depending on its sign
-     */
-    public void modifyScore(int score){
-        this.score = modifyNumber(this.score,score);
     }
 
     /**
@@ -210,23 +153,21 @@ public class Player {
         this.spawnCoordinates = modifyAnyCoordinates(this.spawnCoordinates,line,column);
     }
 
+    public abstract boolean validMovement(Cell cell);
+
     /**
      * Returns a String that contains the player's name and score with a certain format
      * @return A String that contains the name and the score of the player
      */
     @Override
     public String toString(){
-        String stringHeart = "heart", stringScore = "pt";
+        String stringHeart = "heart";
 
         if(this.numberOfHearts > 1){
             stringHeart += "s";
         }
 
-        if(this.score > 1){
-            stringScore += "s";
-        }
-
-        String str = this.name + " : " + this.numberOfHearts + " " + stringHeart + " left | " + this.score + " " + stringScore + "\n";
+        String str = this.name + " : " + this.numberOfHearts + " " + stringHeart + " left\n";
 
         if(this.coordinates != null){
             return  str + this.coordinates;
@@ -243,14 +184,21 @@ public class Player {
      */
     @Override
     public boolean equals(Object obj){
-        if(obj == null || !(obj instanceof Player)){
+        if(obj == null || !(obj instanceof Entity)){
             return false;
         
         } else if(obj == this) {
             return true;
         }
 
-        Player player = (Player)obj;
-        return this.name.toLowerCase().equals(player.getName().toLowerCase());
+        Entity mobile = (Entity)obj;
+        return this.name.toLowerCase().equals(mobile.getName().toLowerCase());
     }
+
+    @Override
+    public int hashCode(){
+        return this.name.hashCode();
+    }
+
+    public abstract String getSymbol();
 }

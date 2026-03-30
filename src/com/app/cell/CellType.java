@@ -7,5 +7,6 @@ public enum CellType {
     EMPTY,
     WALL,
     TRAP,
-    LOCKED_DOOR
+    LOCKED_DOOR,
+    HOLE
 }

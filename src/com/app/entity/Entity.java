@@ -3,46 +3,64 @@ package com.app.entity;
 import com.app.cell.Cell;
 import com.app.cell.Coordinates;
 
+/**
+ * The entity class that contains his name, the number of hearts he has, his spawn and current coordinates on a level's grid
+ * @version 4.0 (Fourth world)
+ * @since 4.0 (Fourth world)
+ * @author Rayane
+ */
 public abstract class Entity {
     
     /**
-     * The name of the player
+     * The name of the entity
      */
     private final String name;
 
     /**
-     * The number of hearts that the player has
+     * The number of hearts that the entity has
      */
     private int numberOfHearts;
 
     /**
-     * The current coordinates of the player on a level's grid
+     * The current coordinates of the entity on a level's grid
      */
     private Coordinates coordinates;
 
     /**
-     * The starting coordinates of the player on a level's grid
+     * The starting coordinates of the entity on a level's grid
      */
     private Coordinates spawnCoordinates;
 
-    public Entity(String name, int numberOfHearts){
+    /**
+     * The emoji symbol that represents the entity
+     */
+    private final String symbol;
+
+    /**
+     * The entity constructor that takes as an argument a name and a number of hearts
+     * @param name The name of the entity
+     * @param numberOfHearts The initial number of hearts of the entity
+     * @param symbol The emoji symbol that represents the entity
+     */
+    protected Entity(String name, int numberOfHearts, String symbol){
         this.name = name;
         this.numberOfHearts = numberOfHearts;
         this.coordinates = null;
         this.spawnCoordinates = null;
+        this.symbol = symbol;
     }
 
     /**
-     * Returns the name of the player
-     * @return The name of the player
+     * Returns the name of the entity
+     * @return The name of the entity
      */
     public String getName(){
         return this.name;
     }
 
     /**
-     * Returns the number of hearts that the player has
-     * @return The number of hearts that the player has
+     * Returns the number of hearts that the entity has
+     * @return The number of hearts that the entity has
      */
     public int getNumberOfHearts(){
         return this.numberOfHearts;
@@ -54,13 +72,13 @@ public abstract class Entity {
      */
     private void checkCoordinates(Coordinates coordinates){
         if(coordinates == null){
-            throw new IllegalStateException("The player's coordinates are null");
+            throw new IllegalStateException("The entity's coordinates are null");
         }
     }
 
     /**
-     * Returns the current coordinates line of the player on a level's grid
-     * @return The current coordinates line of the player on a level's grid
+     * Returns the current coordinates line of the entity on a level's grid
+     * @return The current coordinates line of the entity on a level's grid
      */
     public int getCurrentLine(){
         checkCoordinates(this.coordinates);
@@ -68,8 +86,8 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the current coordinates column of the player on a level's grid
-     * @return The current coordinates column of the player on a level's grid
+     * Returns the current coordinates column of the entity on a level's grid
+     * @return The current coordinates column of the entity on a level's grid
      */
     public int getCurrentColumn(){
         checkCoordinates(this.coordinates);
@@ -77,8 +95,8 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the starting line coordinates of the player on a level's grid
-     * @return The starting line coordinates of the player on a level's grid
+     * Returns the starting line coordinates of the entity on a level's grid
+     * @return The starting line coordinates of the entity on a level's grid
      */
     public int getSpawnLine(){
         checkCoordinates(this.spawnCoordinates);
@@ -86,12 +104,29 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the starting column coordinates of the player on a level's grid
-     * @return The starting column coordinates of the player on a level's grid
+     * Returns the starting column coordinates of the entity on a level's grid
+     * @return The starting column coordinates of the entity on a level's grid
      */
     public int getSpawnColumn(){
         checkCoordinates(this.spawnCoordinates);
         return this.spawnCoordinates.getColumn();
+    }
+
+    /**
+     * Checks if 2 entities coordinates are equal
+     * @param entity The entity that will be compared
+     * @return True if the entities coordinates are equal, or false otherwise
+     */
+    public boolean sameCoordinates(Entity entity){
+        return this.coordinates != null && entity != null && this.coordinates.equals(entity.coordinates);
+    }
+
+    /**
+     * Returns the emoji symbol of the entity according to its type
+     * @return the emoji symbol of the entity according to its type
+     */
+    public String getSymbol(){
+        return this.symbol;
     }
 
     /**
@@ -110,9 +145,9 @@ public abstract class Entity {
     }
 
     /**
-     * Either adds or removes a specific number of hearts from the player
-     * If the number of hearts is positive it will be added to the player and if it is negative it will be removed from him
-     * @param numberOfHearts The number of hearts that will be added to or removed from the player, depending on its sign
+     * Either adds or removes a specific number of hearts from the entity
+     * If the number of hearts is positive it will be added to the entity and if it is negative it will be removed from him
+     * @param numberOfHearts The number of hearts that will be added to or removed from the entity, depending on its sign
      */
     public void modifyNumberOfHearts(int numberOfHearts){
         this.numberOfHearts = modifyNumber(this.numberOfHearts,numberOfHearts);
@@ -120,6 +155,7 @@ public abstract class Entity {
 
     /**
      * Modify any coordinates and returns it
+     * @param coordinates The coordinates that will be modified
      * @param line Specific line on a level's grid
      * @param column Specific column on a level's grid
      * @return The modified coordinates
@@ -136,7 +172,7 @@ public abstract class Entity {
     }
 
     /**
-     * Modify the current coordinates of the player on a level's grid
+     * Modify the current coordinates of the entity on a level's grid
      * @param line Specific line on a level's grid
      * @param column Specific column on a level's grid
      */
@@ -145,7 +181,7 @@ public abstract class Entity {
     }
 
     /**
-     * Modify the starting coordinates of the player on a level's grid
+     * Modify the starting coordinates of the entity on a level's grid
      * @param line Specific line on a level's grid
      * @param column Specific column on a level's grid
      */
@@ -153,11 +189,16 @@ public abstract class Entity {
         this.spawnCoordinates = modifyAnyCoordinates(this.spawnCoordinates,line,column);
     }
 
+    /**
+     * Checks if a cell is valid according to the entity's possible movements
+     * @param cell The cell that will be checked
+     * @return true if the cell is valid for the entity, or false otherwise
+     */
     public abstract boolean validMovement(Cell cell);
 
     /**
-     * Returns a String that contains the player's name and score with a certain format
-     * @return A String that contains the name and the score of the player
+     * Returns a String that contains the entity's name, number of hearts and coordinates with a certain format
+     * @return A String that contains the name, the number of hearts and the coordinates of the entity
      */
     @Override
     public String toString(){
@@ -173,13 +214,13 @@ public abstract class Entity {
             return  str + this.coordinates;
 
         } else {
-            return str + "The player isn't located on any level yet";
+            return str + "Not located on any level yet";
         }
     }
 
     /**
-     * Checks if a player is equal to an object
-     * @param obj The object that will be compared to the player
+     * Checks if an entity is equal to an object
+     * @param obj The object that will be compared to the entity
      * @return true if they are equal or false if they aren't
      */
     @Override
@@ -191,14 +232,16 @@ public abstract class Entity {
             return true;
         }
 
-        Entity mobile = (Entity)obj;
-        return this.name.toLowerCase().equals(mobile.getName().toLowerCase());
+        Entity entity = (Entity)obj;
+        return this.name.toLowerCase().equals(entity.getName().toLowerCase());
     }
 
+    /**
+     * Returns the hash code of the entity
+     * @return the hash code of the entity
+     */
     @Override
     public int hashCode(){
         return this.name.hashCode();
     }
-
-    public abstract String getSymbol();
 }

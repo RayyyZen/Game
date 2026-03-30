@@ -2,8 +2,8 @@ package com.app.cell;
 
 /**
  * The cell class that contains its coordinates, its type and eventually a coin
- * @version 3.0 (Third world)
- * @since 3.0
+ * @version 4.0 (Fourth world)
+ * @since 3.0 (Third world)
  * @author Rayane
  */
 public class Cell {
@@ -24,6 +24,11 @@ public class Cell {
     private boolean containsCoin;
 
     /**
+     * The variable that indicates if the cell contains a box
+     */
+    private boolean containsBox;
+
+    /**
      * Checks if a cell's type is null
      * @param type The cell's type that will be checked
      */
@@ -38,8 +43,9 @@ public class Cell {
      * @param coordinates The coordinates of the cell
      * @param type The type of the cell
      * @param containsCoin The variable that indicates if the cell contains a coin
+     * @param containsBox The variable that indicates if the cell contains a box
      */
-    public Cell(Coordinates coordinates, CellType type, boolean containsCoin){
+    public Cell(Coordinates coordinates, CellType type, boolean containsCoin, boolean containsBox){
         if(coordinates == null || coordinates.getLine() < 0 || coordinates.getColumn() < 0){
             throw new IllegalArgumentException("The cell's coordinates are invalid");
         }
@@ -50,6 +56,7 @@ public class Cell {
         //To avoid changing coordinates resulting in changing this.coordinates
         this.type = type;
         this.containsCoin = containsCoin;
+        this.containsBox = containsBox;
     }
 
     /**
@@ -69,6 +76,14 @@ public class Cell {
     }
 
     /**
+     * Returns the boolean that indicates if the cell contains a box
+     * @return true if the cell contains a box or false otherwise
+     */
+    public boolean containsBox(){
+        return this.containsBox;
+    }
+
+    /**
      * Modify the type of the cell
      * @param type The cell's new type
      */
@@ -85,12 +100,19 @@ public class Cell {
     }
 
     /**
+     * Puts or removes a box from the cell
+     */
+    public void controlBox(boolean containsBox){
+        this.containsBox = containsBox;
+    }
+
+    /**
      * Returns a String that contains the cell's attributs
      * @return A String that contains the cell's attributs
      */
     @Override
     public String toString(){
-        return "Cell :\n -> " + this.coordinates + "\n -> Type : " + this.type + "\n -> Contains coin : " + this.containsCoin;
+        return "Cell :\n -> " + this.coordinates + "\n -> Type : " + this.type + "\n -> Contains coin : " + this.containsCoin + "\n -> Contains box : " + this.containsBox;
     }
 
     /**
@@ -113,6 +135,10 @@ public class Cell {
         return this.coordinates.equals(cell.coordinates);
     }
 
+    /**
+     * Returns the hash code of the cell
+     * @return the hash code of the cell
+     */
     @Override
     public int hashCode(){
         return this.coordinates.hashCode();

@@ -1,7 +1,7 @@
 package com.app.level;
 
 /**
- * The enumeration that contains the direction the player wants to take
+ * The enumeration that contains all the directions that can be taken by an entity
  */
 public enum Direction {
     UP,

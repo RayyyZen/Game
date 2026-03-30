@@ -10,8 +10,8 @@ import com.app.level.Level;
 
 /**
  * The main class
- * @version 3.0 (Third world)
- * @since 1.0
+ * @version 4.0 (Fourth world)
+ * @since 1.0 (First world)
  * @author Rayane
  */
 public class Main {
@@ -19,7 +19,7 @@ public class Main {
     /**
      * The main method
      * @param args An array of String arguments passed into the main method from the input of the application
-     * args[0] must contain the name of a compliant file that will be used to create the level 
+     * Each args[i] must contain the name of a compliant file that will be used to create a level 
      */
     public static void main(String args[]){
 
@@ -79,15 +79,15 @@ public class Main {
                 level.movePlayer(View.inputToDirection(input));
                 level.moveAllEnemies();
 
-                names = level.getEnemiesAttributes();
+                names = level.getCollidedEnemies();
 
                 level.effect();
 
-            }while(!View.endGame(input) && player.getNumberOfHearts() > 0);
+            }while(!level.gameOver());
 
             View.displayEndScreen(level,names);
 
-            if(player.getNumberOfHearts() > 0 || input.toLowerCase().equals("l")){
+            if(!level.gameOver() || input.toLowerCase().equals("l")){
                 //It means the player has finished the levels or he wants to leave
                 break;
             }

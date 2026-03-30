@@ -9,48 +9,73 @@ import com.app.cell.CellType;
 import com.app.level.Direction;
 import com.app.level.Level;
 
+/**
+ * The monster class that contains his attributes
+ * @version 4.0 (Fourth world)
+ * @since 4.0 (Fourth world)
+ * @author Rayane
+ */
 public class Monster extends Enemy {
 
     /**
-     * The number of hearts that each player initially has
+     * The number of hearts that each monster initially has
      */
-    protected static final int HEARTS = 1;
+    private static final int HEARTS = 1;
 
-    protected static final int DAMAGE = -1;
+    /**
+     * The symbol the represents the monsters
+     */
+    private static final String SYMBOL = "👾";
 
-    protected static final String SYMBOL = "👾";
+    /**
+     * The number of damage that each monster can cause
+     */
+    private static final int DAMAGE = -1;
 
+    /**
+     * The monster constructor that takes as an argument only a name
+     * @param name The name of the monster
+     */
     public Monster(String name){
-        super(name,HEARTS);
+        super(name,HEARTS,SYMBOL,DAMAGE);
     }
 
+    /**
+     * The monster constructor that doesn't take any arguments and automatically generates his name
+     */
     public Monster(){
         this("Monster" + (numberOfEnemies + 1));
     }
 
+    /**
+     * Finds a valid direction where the monster will move
+     * @param level The level that the monster is located on
+     * @return A valid direction where the monster will move
+     */
     public Direction getDirection(Level level){
 
         List<Direction> directions = new ArrayList<>();
+        //The list that will contain all the possible directions the monster can take
 
-        int enemyLine = this.getCurrentLine();
-        int enemyColumn = this.getCurrentColumn(); 
+        int monsterLine = this.getCurrentLine();
+        int monsterColumn = this.getCurrentColumn(); 
 
         int lines = level.getHeight();
         int columns = level.getWidth();
 
-        if(enemyLine > 0 && level.validCell(this,enemyLine - 1,enemyColumn)){
+        if(monsterLine > 0 && level.validCell(this,monsterLine - 1,monsterColumn)){
             directions.add(Direction.UP);
         }
 
-        if(enemyLine < lines - 1 && level.validCell(this,enemyLine + 1,enemyColumn)){
+        if(monsterLine < lines - 1 && level.validCell(this,monsterLine + 1,monsterColumn)){
             directions.add(Direction.DOWN);
         }
 
-        if(enemyColumn > 0 && level.validCell(this,enemyLine,enemyColumn - 1)){
+        if(monsterColumn > 0 && level.validCell(this,monsterLine,monsterColumn - 1)){
             directions.add(Direction.LEFT);
         }
 
-        if(enemyColumn < columns - 1 && level.validCell(this,enemyLine,enemyColumn + 1)){
+        if(monsterColumn < columns - 1 && level.validCell(this,monsterLine,monsterColumn + 1)){
             directions.add(Direction.RIGHT);
         }
 
@@ -60,19 +85,16 @@ public class Monster extends Enemy {
 
         int randomIndex = ThreadLocalRandom.current().nextInt(0,directions.size());
         return directions.get(randomIndex);
-
     }
     
+    /**
+     * Checks if a cell is valid according to the monster's possible movements
+     * The monsters can't walk on traps
+     * @param cell The cell that will be checked
+     * @return true if the cell is valid for the monster, or false otherwise
+     */
     public boolean validMovement(Cell cell){
         CellType type = cell.getType();
-        return type == CellType.EMPTY;
-    }
-
-    public String getSymbol(){
-        return SYMBOL;
-    }
-
-    public int getDamage(){
-        return DAMAGE;
+        return type == CellType.EMPTY && !cell.containsBox();
     }
 }

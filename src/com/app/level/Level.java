@@ -12,9 +12,9 @@ import com.app.entity.*;
 import com.app.entity.enemy.Enemy;
 
 /**
- * The level class that contains the grid (map) and a unique player who will play on it
- * @version 3.0 (Third world)
- * @since 2.0
+ * The level class that contains the grid (map), a unique player who plays on it and the enemies
+ * @version 4.0 (Fourth world)
+ * @since 2.0 (Second world)
  * @author Rayane
  */
 public class Level {
@@ -29,8 +29,14 @@ public class Level {
      */
     private Player player;
 
+    /**
+     * The enemies that are located on the level
+     */
     private List<Enemy> enemies;
 
+    /**
+     * The cells that are occupied by at least one enemy
+     */
     private Set<Cell> occupiedCells;
 
     /**
@@ -40,15 +46,24 @@ public class Level {
     private int numberOfCoins;
 
     /**
-     * Number of points (score) that the player's gain from a coin
+     * Number of points (score) that the player gains from picking up a coin
      */
     private static final int COIN = 10;
 
     /**
-     * Number of hearts that the player looses from falling into a trap
+     * Number of hearts that the player loses from falling into a trap
      */
     private static final int TRAP = -2;
 
+    /**
+     * The level's constructor used by the level's loader in order to return a created level
+     * This level's constructor is package private in order to be called in the LevelLoader class
+     * @param grid The grid that contains the level's map
+     * @param player The player who is located on the level
+     * @param enemies The enemies located on the level
+     * @param occupiedCells The cells that are occupied by at least one enemy on the level
+     * @param numberOfCoins The number of coins that the level has
+     */
     Level(Cell[][] grid, Player player, List<Enemy> enemies, Set<Cell> occupiedCells, int numberOfCoins){
         this.grid = grid;
         this.player = player;
@@ -57,6 +72,10 @@ public class Level {
         this.numberOfCoins = numberOfCoins;
     }
 
+    /**
+     * The level's constructor that copies the attributes of a level given as an argument
+     * @param level The level that will be used to create a new one by copying its attributes
+     */
     private Level(Level level){
         this(level.grid,level.player,level.enemies,level.occupiedCells,level.numberOfCoins);
     }
@@ -79,47 +98,107 @@ public class Level {
         return this.numberOfCoins;
     }
 
+    /**
+     * Returns the current coordinates line of the player on the level's grid
+     * @return The current coordinates line of the player on the level's grid
+     */
     public int getPlayerLine(){
         return this.player.getCurrentLine();
     }
 
+    /**
+     * Returns the current coordinates column of the player on the level's grid
+     * @return The current coordinates column of the player on the level's grid
+     */
     public int getPlayerColumn(){
         return this.player.getCurrentColumn();
     }
 
+    /**
+     * Returns the heigth of the level's grid
+     * @return the heigth of the level's grid
+     */
     public int getHeight(){
         return this.grid.length;
     }
 
+    /**
+     * Returns the width of the level's grid
+     * @return the width of the level's grid
+     */
     public int getWidth(){
         return this.grid[0].length;
     }
 
-    private void move(Entity mobile, Direction direction){
+    /**
+     * Moves a box on the level
+     * @param line The line of the box that will be moved
+     * @param column The column of the box that will be moved
+     * @param paddingLine The increasing line's incrementing to check if another box is related to the main one
+     * @param paddingColumn The increasing column's incrementing to check if another box is related to the main one
+     * @return True if the box was able to move, or false otherwise
+     */
+    private boolean moveBox(int line, int column, int paddingLine, int paddingColumn){
 
-        int mobileLine = mobile.getCurrentLine();
-        int mobileColumn = mobile.getCurrentColumn();
-        //Gets the player's coordinates
+        int lines = this.getHeight();
+        int columns = this.getWidth();
+
+        int l = (line + paddingLine + lines) % lines, c = (column + paddingColumn + columns) % columns;
+
+        while(this.grid[l][c].containsBox()){//Reaches the coordinates where a box should appear
+            l = (l + paddingLine + lines) % lines;
+            c = (c + paddingColumn + columns) % columns;
+        }
+
+        if((this.grid[l][c].getType() == CellType.EMPTY || this.grid[l][c].getType() == CellType.HOLE) && !(this.player.getSpawnLine() == l && this.player.getSpawnColumn() == c) && !this.occupiedCells.contains(this.grid[l][c])){
+            if(this.grid[l][c].getType() == CellType.HOLE){
+                this.grid[l][c].setType(CellType.EMPTY);
+
+            } else {
+                this.grid[l][c].controlBox(true);
+            }
+            this.grid[line][column].controlBox(false);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Moves an entity on the level's grid
+     * Moves also the boxes on a level's grid in case they were pushed by the player
+     * @param entity The entity that will be moved
+     * @param direction The direction that will be taken by the entity
+     */
+    private void move(Entity entity, Direction direction){
+
+        int entityLine = entity.getCurrentLine();
+        int entityColumn = entity.getCurrentColumn();
+        //Gets the eneity's coordinates
 
         int lines = this.grid.length;
-        int columns = this.grid[mobileLine].length;
+        int columns = this.grid[entityLine].length;
+
+        int line = entityLine;
+        int column = entityColumn;
 
         switch(direction){
 
             case UP :
-                mobileLine--;
+                line--;
                 break;
 
             case DOWN :
-                mobileLine++;
+                line++;
                 break;
 
             case LEFT :
-                mobileColumn--;
+                column--;
                 break;
 
             case RIGHT :
-                mobileColumn++;
+                column++;
                 break;
 
             default :
@@ -127,18 +206,22 @@ public class Level {
 
         }
 
-        int line = mobileLine;
-        int column = mobileColumn;
-
-        if(mobile instanceof Player){
-            line = (mobileLine + lines) % lines;
+        if(entity instanceof Player){
+            line = (line + lines) % lines;
             //The line range will be [0,lines-1] so it is on the grid
-            column = (mobileColumn + columns) % columns;
+            column = (column + columns) % columns;
             //The column range will be [0,columns-1] so it is on the grid
+
+            if(this.grid[line][column].containsBox()){
+                int paddingLine = line - entityLine, paddingColumn = column - entityColumn;
+                if(!moveBox(line,column,paddingLine,paddingColumn)){//It means the box couldn't be moved
+                    return ;
+                }
+            }
         }
 
-        if(line >= 0 && line < lines && column >= 0 && column < columns && mobile.validMovement(this.grid[line][column])){
-            mobile.setCoordinates(line,column);
+        if(line >= 0 && line < lines && column >= 0 && column < columns && entity.validMovement(this.grid[line][column])){
+            entity.setCoordinates(line,column);
         }
     }
 
@@ -150,31 +233,51 @@ public class Level {
         move(this.player,direction);
     }
 
-    public boolean validCell(Entity mobile, int line, int column){
-        return mobile.validMovement(this.grid[line][column]);
+    /**
+     * Checks if a cell is valid for a specific entity
+     * @param entity The entity that wants to move on the cell
+     * @param line The line on the level's grid of the entity
+     * @param column The column on the level's grid of the entity
+     * @return True if the cell is valid for the entity, or false otherwise
+     */
+    public boolean validCell(Entity entity, int line, int column){
+        return entity.validMovement(this.grid[line][column]);
     }
 
-    private Cell getMobileCell(Entity mobile){
-        return this.grid[mobile.getCurrentLine()][mobile.getCurrentColumn()];
+    /**
+     * Returns the cell occupied by an entity
+     * @param entity The entity that is located on a cell
+     * @return The cell where the entity is located on
+     */
+    private Cell getEntityCell(Entity entity){
+        return this.grid[entity.getCurrentLine()][entity.getCurrentColumn()];
     }
 
+    /**
+     * Moves an enemy on the level's grid
+     * @param enemy The enemy that will be moved
+     */
     private void moveEnemy(Enemy enemy){
         boolean remove = true;
+
         for(Enemy e : this.enemies){
-            if(!e.equals(enemy) && e.getCurrentLine() == enemy.getCurrentLine() && e.getCurrentColumn() == enemy.getCurrentColumn()){
+            if(!e.equals(enemy) && e.sameCoordinates(enemy)){
                 remove = false;
             }
         }
 
-        if(remove){
-            this.occupiedCells.remove(this.getMobileCell(enemy));
+        if(remove){//The cell is removed from the occupiedCells collection only if there isn't another enemy on it
+            this.occupiedCells.remove(this.getEntityCell(enemy));
         }
         
         move(enemy,enemy.getDirection(this));
         //this is the level
-        this.occupiedCells.add(this.getMobileCell(enemy));
+        this.occupiedCells.add(this.getEntityCell(enemy));
     }
 
+    /**
+     * Moves all the enemies of the level's grid
+     */
     public void moveAllEnemies(){
         for(Enemy enemy : this.enemies){
             moveEnemy(enemy);
@@ -182,7 +285,23 @@ public class Level {
     }
 
     /**
-     * This function launches an action according to the object that is on the same cell as the player
+     * Returns all the enemies attributes that hitted the player
+     * @return all the enemies attributes that hitted the player
+     */
+    public List<String> getCollidedEnemies(){
+        List<String> names = new ArrayList<>();
+
+        for(Enemy enemy : this.enemies){
+            if(enemy.sameCoordinates(this.player)){
+                names.add(enemy.toString());
+            }
+        }
+
+        return names;
+    }
+
+    /**
+     * This function launches an action according to the cell where the player is located
      */
     public void effect(){
         int playerLine = this.player.getCurrentLine();
@@ -206,9 +325,9 @@ public class Level {
             bringToSpawn = true;
         }
 
-        if(this.occupiedCells.contains(this.getMobileCell(this.player))){
+        if(this.occupiedCells.contains(this.getEntityCell(this.player))){
             for(Enemy enemy : this.enemies){
-                if(enemy.getCurrentLine() == playerLine && enemy.getCurrentColumn() == playerColumn){
+                if(enemy.sameCoordinates(player)){
                     this.player.modifyNumberOfHearts(enemy.getDamage());
                     bringToSpawn = true;
                 }
@@ -219,23 +338,15 @@ public class Level {
             this.player.setCoordinates(this.player.getSpawnLine(),this.player.getSpawnColumn());
             //Brings the player to the spawn
 
+            this.occupiedCells.clear();
+            //Withdraw all the previous occupied cells
+
             for(Enemy enemy : this.enemies){
-                this.occupiedCells.remove(this.getMobileCell(enemy));
                 enemy.setCoordinates(enemy.getSpawnLine(),enemy.getSpawnColumn());
-                this.occupiedCells.add(this.getMobileCell(enemy));
+                this.occupiedCells.add(this.getEntityCell(enemy));
             }
         }
 
-    }
-
-    public List<String> getEnemiesAttributes(){
-        List<String> names = new ArrayList<>();
-        for(Enemy enemy : this.enemies){
-            if(enemy.getCurrentLine() == this.player.getCurrentLine() && enemy.getCurrentColumn() == this.player.getCurrentColumn()){
-                names.add(enemy.toString());
-            }
-        }
-        return names;
     }
 
     /**
@@ -247,8 +358,8 @@ public class Level {
     }
 
      /**
-     * Returns a String that contains level's grid with the player on it
-     * @return A String that contains level's structure and the player on it
+     * Returns a String that contains the level's grid with the player on it
+     * @return A String that contains the level's structure and the player on it
      */
     @Override
     public String toString(){
@@ -280,21 +391,25 @@ public class Level {
                             break;
 
                         case TRAP :
-                            // 🕸🧨⛓🔗💣⚓♨🧷🌫🕳💢
                             string.append("🔗");
                             break;
 
                         case LOCKED_DOOR :
-                            //🚪🔓🔓🔑🗝
                             string.append("🔐");
                             break;
 
+                        case HOLE :
+                            string.append("💫");
+                            break;
+
                         default : //EMPTY
-                            if(this.grid[i][j].containsCoin()){
-                                // 👛📀🟡
+                            if(this.grid[i][j].containsBox()){
+                                string.append("🌑");
+
+                            } else if(this.grid[i][j].containsCoin()) {
                                 string.append("📀");
-                            }
-                            else{
+
+                            } else {
                                 string.append("  ");
                             }
                     }
@@ -305,7 +420,7 @@ public class Level {
             string.append("\n");
         }
 
-        return string.toString() + "\n" + this.player + "\n";
+        return string.toString() + "\n" + this.player.toString() + "\n";
     }
 
     /**
@@ -325,7 +440,6 @@ public class Level {
         Level level = (Level)obj;
 
         if(this.grid.length != level.grid.length){
-            //Use of Objects.equals(a,b) instead of a != null && a.equals(b)
             return false;
         }
         //If we are here it means this.grid.length == level.grid.length
@@ -346,6 +460,10 @@ public class Level {
         return true;
     }
 
+    /**
+     * Returns the hash code of the level
+     * @return the hash code of the level
+     */
     @Override
     public int hashCode(){
         return Arrays.deepHashCode(this.grid);

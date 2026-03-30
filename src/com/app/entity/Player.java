@@ -4,9 +4,9 @@ import com.app.cell.Cell;
 import com.app.cell.CellType;
 
 /**
- * The player class that contains his name, the number of hearts he has, his current score, his spawn and current coordinates on a level's grid and the total number of players that were created
- * @version 3.0 (Third world)
- * @since 1.0
+ * The player class that contains his attributes and the total number of players that were created
+ * @version 4.0 (Fourth world)
+ * @since 1.0 (First world)
  * @author Rayane
  */
 public class Player extends Entity {
@@ -26,6 +26,9 @@ public class Player extends Entity {
      */
     private static final int HEARTS = 5;
 
+    /**
+     * The emoji that represents the players
+     */
     private static final String SYMBOL = "🐱‍👤";
 
     /**
@@ -33,7 +36,7 @@ public class Player extends Entity {
      * @param name The name of the player
      */
     public Player(String name){
-        super(name,HEARTS);
+        super(name,HEARTS,SYMBOL);
         this.score = 0;
         numberOfPlayers++;
     }
@@ -70,6 +73,11 @@ public class Player extends Entity {
         this.score = super.modifyNumber(this.score,score);
     }
 
+    /**
+     * Checks if a cell is valid according to the player's possible movements
+     * @param cell The cell that will be checked
+     * @return true if the cell is valid for the player, or false otherwise
+     */
     @Override
     public boolean validMovement(Cell cell){
         CellType type = cell.getType();
@@ -77,8 +85,8 @@ public class Player extends Entity {
     }
 
     /**
-     * Returns a String that contains the player's name and score with a certain format
-     * @return A String that contains the name and the score of the player
+     * Returns a String that contains the player's attributes with a certain format
+     * @return A String that contains the attributs of the player
      */
     @Override
     public String toString(){
@@ -90,9 +98,4 @@ public class Player extends Entity {
 
         return super.toString() + "\nScore : " + this.score + " " + stringScore;
     }
-
-    public String getSymbol(){
-        return SYMBOL;
-    }
-
 }

@@ -8,21 +8,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.app.cell.Cell;
-import com.app.cell.CellType;
-import com.app.cell.Coordinates;
-import com.app.entity.Player;
+import com.app.cell.*;
+import com.app.entity.*;
 import com.app.entity.enemy.*;
 
+/**
+ * The level loading class that loads a level from a valid file
+ * @version 4.0 (Fourth world)
+ * @since 4.0 (Fourth world)
+ * @author Rayane
+ */
 abstract class LevelLoader {
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C' and '\n' with a unique occurence of '1')
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'H' and '\n' with a unique occurence of '1')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
     private static boolean validContent(String content){
-        String validSymbols = "1 #*.DRGC\n";
+        String validSymbols = "1 #*.DRGCBH\n";
         //All the valid symbols that are allowed in the file
 
         int counter = 0;
@@ -44,6 +48,13 @@ abstract class LevelLoader {
         //There is a unique player on the level's grid
     }
 
+    /**
+     * Loads a level from a file
+     * @param fileName The filename that will be used to create the level's grid
+     * @param player The player that will play the level
+     * @return The created level
+     * @throws IOException if the file doesn't exist or the file's content can't be accessed
+     */
     static Level load(String fileName, Player player) throws IOException{
 
         if(player == null){
@@ -52,6 +63,8 @@ abstract class LevelLoader {
 
         String content = Files.readString(Path.of(fileName));
         //This line can throw an IOException
+
+        int contentLength = content.length();
 
         if(!validContent(content)){
             throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#' and '\\n' with a unique occurence of '1'");
@@ -66,8 +79,8 @@ abstract class LevelLoader {
         int counter = 0;
         //Counts the number of characters in a line
     
-        for(int i = 0; i < content.length(); i++){
-            if(content.charAt(i) == '\n'){
+        for(int index = 0; index < contentLength; index++){
+            if(content.charAt(index) == '\n'){
 
                 if(maxLineLength < counter){
                     maxLineLength = counter;
@@ -89,7 +102,7 @@ abstract class LevelLoader {
         List<Enemy> enemies = new ArrayList<>();
         Set<Cell> occupiedCells = new HashSet<>();
 
-        for(int index = 0; index < content.length(); index++){
+        for(int index = 0; index < contentLength; index++){
 
             char car = content.charAt(index);
 
@@ -99,19 +112,8 @@ abstract class LevelLoader {
 
             switch(car){
 
-                case '\n' :
-                    for(int col = column; col < width; col++){
-                        grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false);
-                        //Complete the line with ' ' symbol
-                    }
-
-                    line++;
-                    //Move to the next line of the grid
-                    column = 0;
-                    break;
-
                 case '*' :
-                    grid[line][column] = new Cell(coordinates, CellType.TRAP, false);
+                    grid[line][column] = new Cell(coordinates, CellType.TRAP, false, false);
                     break;
 
                 case '1' :
@@ -120,24 +122,24 @@ abstract class LevelLoader {
                     //Get the player's coordinates
                     //If this code is reached it means that the file is valid so there is a unique player on the grid
 
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, false);
                     break;
 
                 case '.' :
                     numberOfCoins++;
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, true);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, true, false);
                     break;
 
                 case ' ' :
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, false);
                     break;
 
                 case '#' :
-                    grid[line][column] = new Cell(coordinates, CellType.WALL, false);
+                    grid[line][column] = new Cell(coordinates, CellType.WALL, false, false);
                     break;
 
                 case 'D' :
-                    grid[line][column] = new Cell(coordinates, CellType.LOCKED_DOOR, false);
+                    grid[line][column] = new Cell(coordinates, CellType.LOCKED_DOOR, false, false);
                     break;
 
                 case 'R' :
@@ -152,19 +154,37 @@ abstract class LevelLoader {
                     enemy = new Hunter();
                     break;
 
+                case 'B' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, true);
+                    break;
+
+                case 'H' :
+                    grid[line][column] = new Cell(coordinates, CellType.HOLE, false, false);
+                    break;
+
             }
 
-            if(enemy != null){
+            if(enemy != null){//If an enemy was created
                 enemy.setCoordinates(line,column);
                 enemy.setSpawnCoordinates(line,column);
                 enemies.add(enemy);
 
-                Cell cell = new Cell(coordinates, CellType.EMPTY, false);
+                Cell cell = new Cell(coordinates, CellType.EMPTY, false, false);
                 grid[line][column] = cell;
                 occupiedCells.add(cell);
             }
 
-            if(car != '\n'){
+            if(car == '\n' || index == contentLength - 1){
+                for(int col = column; col < width; col++){
+                    grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false, false);
+                    //Complete the line with ' ' symbol
+                }
+
+                line++;
+                //Move to the next line of the grid
+                column = 0;
+
+            } else {
                 column++;
                 //Move to the next column of the grid
             }

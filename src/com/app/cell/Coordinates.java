@@ -1,9 +1,11 @@
 package com.app.cell;
 
+import java.util.Objects;
+
 /**
  * The coordinates class that contains a specific position (line and column) on the grid that contains the level
- * @version 2.1 (Second world)
- * @since 2.0
+ * @version 4.0 (Fourth world)
+ * @since 2.0 (Second world)
  * @author Rayane
  */
 public class Coordinates {
@@ -63,7 +65,6 @@ public class Coordinates {
      */
     public void setLine(int line){
         checkCoordinates(line,this.column);
-
         this.line = line;
     }
 
@@ -73,7 +74,6 @@ public class Coordinates {
      */
     public void setColumn(int column){
         checkCoordinates(this.line,column);
-
         this.column = column;
     }
 
@@ -100,15 +100,16 @@ public class Coordinates {
             return true;
         }
 
-        Coordinates coordinates = (Coordinates)obj;
+        Coordinates coordinates = (Coordinates) obj;
         return this.line == coordinates.line && this.column == coordinates.column;
     }
 
+    /**
+     * Return the hash code of the coordinates
+     * @return the hash code of the coordinates
+     */
     @Override
     public int hashCode(){
-        int result = 17;
-        result = 31 * result + this.line;
-        result = 31 * result + this.column;
-        return result;
+        return Objects.hash(this.line,this.column);
     }
 }

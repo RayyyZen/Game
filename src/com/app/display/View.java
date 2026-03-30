@@ -7,8 +7,8 @@ import com.app.level.Level;
 
 /**
  * The class that manages the user's inputs and the displays
- * @version 3.0 (Third world)
- * @since 2.0
+ * @version 4.0 (Fourth world)
+ * @since 2.0 (Second world)
  * @author Rayane
  */
 public class View {
@@ -61,19 +61,23 @@ public class View {
         System.out.println("----> 'l' Or 'L' : Leave\n");
     }
 
-    private static void displayEnnemies(List<String> names){
+    /**
+     * Display all the ennemies that hitted the player
+     * @param names The names of the ennemies that hitted the player
+     */
+    private static void displayEnemies(List<String> names){
         if(names != null && !names.isEmpty()){
             System.out.println("-> You were hitted by : \n");
             for(String enemyName : names){
-                System.out.println("--> " + enemyName);
+                System.out.println("--> " + enemyName + "\n");
             }
-            System.out.println("");
         }
     }
 
     /**
-     * Display all the elements needed on the screen (The grid, the controls and the player's attributs)
+     * Display all the elements needed on the screen (The grid, the controls, the player's attributs, and eventually the enemies that hitted him)
      * @param level The level which is played by the player
+     * @param names The enemies that hitted the player
      */
     public static void displayScreen(Level level, List<String> names){
         System.out.print("\033[H\033[2J\033[3J");
@@ -82,15 +86,14 @@ public class View {
         // \033[3J : erase saved lines
 
         System.out.println(level);
-
-        displayEnnemies(names);
-
+        displayEnemies(names);
         displayControls();
     }
 
     /**
      * Display the end screen
      * @param level The level which is played by the player
+     * @param names The enemies that hitted the player
      */
     public static void displayEndScreen(Level level, List<String> names){
         View.displayScreen(level,names);

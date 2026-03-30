@@ -1,34 +1,60 @@
 package com.app.entity.enemy;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
-import com.app.cell.Cell;
-import com.app.cell.CellType;
-import com.app.cell.Coordinates;
+import com.app.cell.*;
 import com.app.level.Direction;
 import com.app.level.Level;
 
+/**
+ * The hunter class that contains his attributes
+ * @version 4.0 (Fourth world)
+ * @since 4.0 (Fourth world)
+ * @author Rayane
+ */
 public class Hunter extends Enemy {
 
     /**
-     * The number of hearts that each player initially has
+     * The number of hearts that each hunter initially has
      */
-    protected static final int HEARTS = 3;
+    private static final int HEARTS = 3;
 
-    protected static final int DAMAGE = -2;
+    /**
+     * The symbol the represents the hunters
+     */
+    private static final String SYMBOL = "🤖";
 
-    protected static final String SYMBOL = "🤖";
+    /**
+     * The number of damage that each hunter can cause
+     */
+    private static final int DAMAGE = -2;
 
+    /**
+     * The hunter constructor that takes as an argument only a name
+     * @param name The name of the hunter
+     */
     public Hunter(String name){
-        super(name,HEARTS);
+        super(name,HEARTS,SYMBOL,DAMAGE);
     }
 
+    /**
+     * The hunter constructor that doesn't take any arguments and automatically generates his name
+     */
     public Hunter(){
         this("Hunter" + (numberOfEnemies + 1));
     }
 
+    /**
+     * Finds the list of the directions starting from the player's locations that leads to the hunter's ones
+     * @param level The level where the hunter is located
+     * @param edgeTo The 2D array that contains the taken direction that leaded to each cell
+     * @return A list of the directions that connects the player's and the hunter's both locations
+     */
     private List<Direction> getPath(Level level, Direction[][] edgeTo){
+
         List<Direction> path = new ArrayList<>();
         int line = level.getPlayerLine();
         int column = level.getPlayerColumn();
@@ -37,6 +63,7 @@ public class Hunter extends Enemy {
         do{
             path.addFirst(direction);
 
+            //We go back to the opposite direction in order to know the position we came from
             switch(direction){
 
                 case UP :
@@ -67,6 +94,11 @@ public class Hunter extends Enemy {
         return path;
     }
     
+    /**
+     * Finds a valid direction where the hunter will move
+     * @param level The level that the hunter is located on
+     * @return A valid direction where the hunter will move
+     */
     public Direction getDirection(Level level){
 
         int playerLine = level.getPlayerLine();
@@ -80,14 +112,13 @@ public class Hunter extends Enemy {
 
         Direction[][] edgeTo = new Direction[lines][columns];
 
-        List<Coordinates> queue = new ArrayList<>();
+        Queue<Coordinates> queue = new LinkedList<>();
         queue.add(new Coordinates(hunterLine,hunterColumn));
 
         edgeTo[hunterLine][hunterColumn] = Direction.NONE;
 
         while(!queue.isEmpty()){
-            Coordinates coordinates = queue.getFirst();
-            queue.removeFirst();
+            Coordinates coordinates = queue.poll();
 
             int line = coordinates.getLine();
             int column = coordinates.getColumn();
@@ -95,27 +126,27 @@ public class Hunter extends Enemy {
             if(edgeTo[line][column] != null){
                 if(line > 0 && level.validCell(this,line - 1,column) && edgeTo[line - 1][column] == null){
                     edgeTo[line - 1][column] = Direction.UP;
-                    queue.addLast(new Coordinates(line - 1,column));
+                    queue.add(new Coordinates(line - 1,column));
                 }
 
                 if(line < lines - 1 && level.validCell(this,line + 1,column) && edgeTo[line + 1][column] == null){
                     edgeTo[line + 1][column] = Direction.DOWN;
-                    queue.addLast(new Coordinates(line + 1,column));
+                    queue.add(new Coordinates(line + 1,column));
                 }
 
                 if(column > 0 && level.validCell(this,line,column - 1) && edgeTo[line][column - 1] == null){
                     edgeTo[line][column - 1] = Direction.LEFT;
-                    queue.addLast(new Coordinates(line,column - 1));
+                    queue.add(new Coordinates(line,column - 1));
                 }
 
                 if(column < columns - 1 && level.validCell(this,line,column + 1) && edgeTo[line][column + 1] == null){
                     edgeTo[line][column + 1] = Direction.RIGHT;
-                    queue.addLast(new Coordinates(line,column + 1));
+                    queue.add(new Coordinates(line,column + 1));
                 }
             }
         }
 
-        if(edgeTo[playerLine][playerColumn] == null){
+        if(edgeTo[playerLine][playerColumn] == null){//It means that there isn't any paths that leads to the player
             return Direction.NONE;
         }
 
@@ -124,16 +155,14 @@ public class Hunter extends Enemy {
         return path.getFirst();
     }
     
+    /**
+     * Checks if a cell is valid according to the hunter's possible movements
+     * The hunters can't walk on traps
+     * @param cell The cell that will be checked
+     * @return true if the cell is valid for the hunter, or false otherwise
+     */
     public boolean validMovement(Cell cell){
         CellType type = cell.getType();
-        return type == CellType.EMPTY;
-    }
-
-    public String getSymbol(){
-        return SYMBOL;
-    }
-
-    public int getDamage(){
-        return DAMAGE;
+        return type == CellType.EMPTY && !cell.containsBox();
     }
 }

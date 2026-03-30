@@ -49,6 +49,20 @@ abstract class LevelLoader {
     }
 
     /**
+     * Completes a level's line with empty cells
+     * @param grid The level's grid
+     * @param line The line that will be completed
+     * @param column The first column that will be completed on the line
+     * @param width The width of the level's grid
+     */
+    private static void completeLine(Cell[][] grid, int line, int column, int width){
+        for(int col = column; col < width; col++){
+            grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false, false);
+            //Complete the line with empty cells
+        }
+    }
+
+    /**
      * Loads a level from a file
      * @param fileName The filename that will be used to create the level's grid
      * @param player The player that will play the level
@@ -112,6 +126,13 @@ abstract class LevelLoader {
 
             switch(car){
 
+                case '\n' :
+                    completeLine(grid,line,column,width);
+                    line++;
+                    //Move to the next line of the grid
+                    column = 0;
+                    break;
+
                 case '*' :
                     grid[line][column] = new Cell(coordinates, CellType.TRAP, false, false);
                     break;
@@ -174,22 +195,14 @@ abstract class LevelLoader {
                 occupiedCells.add(cell);
             }
 
-            if(car == '\n' || index == contentLength - 1){
-                for(int col = column; col < width; col++){
-                    grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false, false);
-                    //Complete the line with ' ' symbol
-                }
-
-                line++;
-                //Move to the next line of the grid
-                column = 0;
-
-            } else {
+            if(car != '\n'){
                 column++;
                 //Move to the next column of the grid
             }
 
         }
+
+        completeLine(grid,line,column,width);
 
         player.setCoordinates(playerLine,playerColumn);
         player.setSpawnCoordinates(playerLine,playerColumn);

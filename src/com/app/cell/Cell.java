@@ -101,6 +101,7 @@ public class Cell {
 
     /**
      * Puts or removes a box from the cell
+     * @param containsBox Indicated if a box will be added or removed from the cell
      */
     public void controlBox(boolean containsBox){
         this.containsBox = containsBox;

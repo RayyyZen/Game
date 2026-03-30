@@ -24,8 +24,9 @@ public abstract class Enemy extends Entity {
     /**
      * The Enemy constructor that takes as an argument a name and a number of hearts
      * @param name The name of the enemy
-     * @param numberOfHearts The initial number of hearts of the enemy
+     * @param hearts The initial number of hearts of the enemy
      * @param symbol The emoji symbol that represents the enemy
+     * @param damage The damage that the enemy can cause
      */
     protected Enemy(String name, int hearts, String symbol, int damage){
         super(name,hearts,symbol);

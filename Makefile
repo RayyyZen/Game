@@ -1,7 +1,8 @@
 CC = javac
 MAIN = com.app.Main
 SRCDIR = src
-TARGET = src/com/app/Main.java
+PATHPACKAGES = com.app
+TARGET = $(JAVAFILESPATH)/Main.java
 CLASSDIR = bin
 JAR = game.jar
 DOC = doc
@@ -23,8 +24,8 @@ jar: all
 runJar: jar
 	java -jar $(JAR) $(PARAM)
 
-$(DOC) : $(JAVAFILES)
-	@ javadoc -d $@ -author -encoding UTF-8 $(find $(SRCDIR) -name "*.java")
+$(DOC):
+	@ javadoc -d $@ -author -encoding UTF-8 -sourcepath $(SRCDIR) -subpackages $(PATHPACKAGES)
 
 clean:
 	rm -rf $(CLASSDIR) $(DOC) $(JAR)

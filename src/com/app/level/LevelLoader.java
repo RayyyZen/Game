@@ -7,26 +7,32 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.app.cell.*;
 import com.app.entity.*;
 import com.app.entity.enemy.*;
+import com.app.level.wincondition.CoinCondition;
+import com.app.level.wincondition.EnemyCondition;
+import com.app.usable.item.consumable.Coin;
+import com.app.usable.item.equipable.Hourglass;
+import com.app.usable.item.equipable.Weapon;
 
 /**
  * The level loading class that loads a level from a valid file
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
 abstract class LevelLoader {
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'H' and '\n' with a unique occurence of '1')
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H' and '\n' with a unique occurence of '1')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
     private static boolean validContent(String content){
-        String validSymbols = "1 #*.DRGCBH\n";
+        String validSymbols = "1 #*.DRGCBhWH\n";
         //All the valid symbols that are allowed in the file
 
         int counter = 0;
@@ -57,7 +63,7 @@ abstract class LevelLoader {
      */
     private static void completeLine(Cell[][] grid, int line, int column, int width){
         for(int col = column; col < width; col++){
-            grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false, false);
+            grid[line][col] = new Cell(new Coordinates(line,col), CellType.EMPTY, false, null);
             //Complete the line with empty cells
         }
     }
@@ -112,6 +118,7 @@ abstract class LevelLoader {
         int playerLine = -1, playerColumn = -1;
         int length = lines, width = maxLineLength;
         int numberOfCoins = 0;
+        int blockEnemies = 0;
         Cell[][] grid = new Cell[length][width];
         List<Enemy> enemies = new ArrayList<>();
         Set<Cell> occupiedCells = new HashSet<>();
@@ -134,7 +141,7 @@ abstract class LevelLoader {
                     break;
 
                 case '*' :
-                    grid[line][column] = new Cell(coordinates, CellType.TRAP, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.TRAP, false, null);
                     break;
 
                 case '1' :
@@ -143,24 +150,24 @@ abstract class LevelLoader {
                     //Get the player's coordinates
                     //If this code is reached it means that the file is valid so there is a unique player on the grid
 
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, null);
                     break;
 
                 case '.' :
                     numberOfCoins++;
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, true, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Coin());
                     break;
 
                 case ' ' :
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, null);
                     break;
 
                 case '#' :
-                    grid[line][column] = new Cell(coordinates, CellType.WALL, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.WALL, false, null);
                     break;
 
                 case 'D' :
-                    grid[line][column] = new Cell(coordinates, CellType.LOCKED_DOOR, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.LOCKED_DOOR, false, null);
                     break;
 
                 case 'R' :
@@ -176,11 +183,19 @@ abstract class LevelLoader {
                     break;
 
                 case 'B' :
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, true);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, true, null);
+                    break;
+
+                case 'h' :
+                    grid[line][column] = new Cell(coordinates, CellType.HOLE, false, null);
+                    break;
+
+                case 'W' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Weapon());
                     break;
 
                 case 'H' :
-                    grid[line][column] = new Cell(coordinates, CellType.HOLE, false, false);
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Hourglass());
                     break;
 
             }
@@ -190,7 +205,7 @@ abstract class LevelLoader {
                 enemy.setSpawnCoordinates(line,column);
                 enemies.add(enemy);
 
-                Cell cell = new Cell(coordinates, CellType.EMPTY, false, false);
+                Cell cell = new Cell(coordinates, CellType.EMPTY, false, null);
                 grid[line][column] = cell;
                 occupiedCells.add(cell);
             }
@@ -207,6 +222,19 @@ abstract class LevelLoader {
         player.setCoordinates(playerLine,playerColumn);
         player.setSpawnCoordinates(playerLine,playerColumn);
 
-        return new Level(grid,player,enemies,occupiedCells,numberOfCoins);
+        List<WinCondition> winConditions = new ArrayList<>();
+
+        if(numberOfCoins > 0){
+            winConditions.add(new CoinCondition());
+        }
+        if(enemies.size() > 0){
+            winConditions.add(new EnemyCondition());
+        }
+
+        int randomIndex = ThreadLocalRandom.current().nextInt(0,winConditions.size());
+
+        WinCondition randomWinCondition = winConditions.get(randomIndex);
+
+        return new Level(grid,player,enemies,occupiedCells,numberOfCoins,blockEnemies,randomWinCondition);
     }
 }

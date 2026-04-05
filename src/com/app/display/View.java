@@ -2,12 +2,13 @@ package com.app.display;
 
 import java.util.List;
 
+import com.app.entity.Player;
 import com.app.level.Direction;
 import com.app.level.Level;
 
 /**
  * The class that manages the user's inputs and the displays
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 2.0 (Second world)
  * @author Rayane
  */
@@ -101,7 +102,7 @@ public class View {
         if(level.gameOver()){
             System.out.println("-> Game over !\n");
 
-        } else if(level.getNumberOfCoins() <= 0) {
+        } else if(level.win()) {
             System.out.println("-> You finished the game ! Thank you for playing !\n");
             
         } else {
@@ -117,5 +118,17 @@ public class View {
      */
     public static boolean endGame(String str){
         return str.toLowerCase().equals("l");
+    }
+
+    public static boolean validInventoryIndex(Player player, String input){
+        int inventorySize = player.getInventorySize();
+
+        for(int i = 1; i <= inventorySize; i++){
+            if(("" + i).equals(input)){
+                return true;
+            }
+        }
+
+        return false;
     }
 }

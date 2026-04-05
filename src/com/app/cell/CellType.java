@@ -8,26 +8,36 @@ public enum CellType {
     /**
      * An empty cell
      */
-    EMPTY,
+    EMPTY("  "),
 
     /**
      * A wall that can't be crossed
      */
-    WALL,
+    WALL("🔳"),
 
     /**
      * A trap that can cause damage
      */
-    TRAP,
+    TRAP("🔗"),
 
     /**
      * A locked door that can't be crossed
      */
-    LOCKED_DOOR,
+    LOCKED_DOOR("🔐"),
 
     /**
      * A hole that can be closed by a box
      */
-    HOLE
+    HOLE("💫");
+
+    private final String symbol;
+
+    private CellType(String symbol){
+        this.symbol = symbol;
+    }
+
+    public String getCellTypeSymbol(){
+        return this.symbol;
+    }
     
 }

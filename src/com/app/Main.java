@@ -49,7 +49,7 @@ public class Main {
 
             do{
 
-                if(index == -1 || (index < numberOfLevels - 1 && level.getNumberOfCoins() < 1)){
+                if(index == -1 || (index < numberOfLevels - 1 && level.win())){
                     try{
                         index++;
                         level = new Level(args[index],player);
@@ -62,7 +62,7 @@ public class Main {
                     } 
                 }
 
-                if(index == numberOfLevels - 1 && level.getNumberOfCoins() < 1){
+                if(index == numberOfLevels - 1 && level.win()){
                     break;
                 }
 
@@ -74,6 +74,11 @@ public class Main {
 
                 if(View.endGame(input)){
                     break;
+                }
+
+                if(View.validInventoryIndex(player,input)){
+                    int inventoryIndex = Integer.parseInt(input) - 1;
+                    level.use(inventoryIndex);
                 }
 
                 level.movePlayer(View.inputToDirection(input));

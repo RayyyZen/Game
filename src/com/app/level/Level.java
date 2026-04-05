@@ -3,6 +3,7 @@ package com.app.level;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -10,10 +11,11 @@ import com.app.cell.Cell;
 import com.app.cell.CellType;
 import com.app.entity.*;
 import com.app.entity.enemy.Enemy;
+import com.app.usable.Usable;
 
 /**
  * The level class that contains the grid (map), a unique player who plays on it and the enemies
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 2.0 (Second world)
  * @author Rayane
  */
@@ -45,10 +47,9 @@ public class Level {
      */
     private int numberOfCoins;
 
-    /**
-     * Number of points (score) that the player gains from picking up a coin
-     */
-    private static final int COIN = 10;
+    private int blockEnemies;
+
+    private WinCondition winCondition;
 
     /**
      * Number of hearts that the player loses from falling into a trap
@@ -64,12 +65,14 @@ public class Level {
      * @param occupiedCells The cells that are occupied by at least one enemy on the level
      * @param numberOfCoins The number of coins that the level has
      */
-    Level(Cell[][] grid, Player player, List<Enemy> enemies, Set<Cell> occupiedCells, int numberOfCoins){
+    Level(Cell[][] grid, Player player, List<Enemy> enemies, Set<Cell> occupiedCells, int numberOfCoins, int blockEnemies, WinCondition winCondition){
         this.grid = grid;
         this.player = player;
         this.enemies = enemies;
         this.occupiedCells = occupiedCells;
         this.numberOfCoins = numberOfCoins;
+        this.blockEnemies = blockEnemies;
+        this.winCondition = winCondition;
     }
 
     /**
@@ -77,7 +80,7 @@ public class Level {
      * @param level The level that will be used to create a new one by copying its attributes
      */
     private Level(Level level){
-        this(level.grid,level.player,level.enemies,level.occupiedCells,level.numberOfCoins);
+        this(level.grid,level.player,level.enemies,level.occupiedCells,level.numberOfCoins,level.blockEnemies,level.winCondition);
     }
 
     /**
@@ -128,6 +131,27 @@ public class Level {
      */
     public int getWidth(){
         return this.grid[0].length;
+    }
+
+    public void blockEnemies(int numberOfMovements){
+        if(numberOfMovements < 0){
+            throw new IllegalArgumentException("The enemies can't be blocked for a negative number of movements !");
+        }
+
+        this.blockEnemies += numberOfMovements;
+    }
+
+    /**
+     * Removes a coin from the level
+     */
+    public void removeCoin(){
+        if(this.numberOfCoins > 0){
+            this.numberOfCoins--;
+        }
+    }
+
+    public void modifyPlayerScore(int score){
+        this.player.modifyScore(score);
     }
 
     /**
@@ -279,6 +303,11 @@ public class Level {
      * Moves all the enemies of the level's grid
      */
     public void moveAllEnemies(){
+        if(this.blockEnemies > 0){
+            this.blockEnemies--;
+            return ;
+        }
+
         for(Enemy enemy : this.enemies){
             moveEnemy(enemy);
         }
@@ -311,13 +340,11 @@ public class Level {
         Cell cell = this.grid[playerLine][playerColumn];
         //Get the cell that the player is located on
 
-        if(cell.containsCoin()){
-            this.player.modifyScore(COIN);
-            cell.removeCoin();
-            this.numberOfCoins--;
-        }
-
         boolean bringToSpawn = false;
+
+        cell.pickUp(this);
+
+        this.player.activateAutomaticUsables(this);
 
         if(cell.getType() == CellType.TRAP){
             this.player.modifyNumberOfHearts(TRAP);
@@ -347,6 +374,12 @@ public class Level {
             }
         }
 
+        this.player.learnNewSkills(this);
+
+    }
+
+    public boolean addUsableToPlayer(Usable usable){
+        return this.player.addUsable(usable);
     }
 
     /**
@@ -355,6 +388,10 @@ public class Level {
      */
     public boolean gameOver(){
         return this.player.getNumberOfHearts() <= 0;
+    }
+
+    public boolean win(){
+        return this.winCondition.win(this);
     }
 
      /**
@@ -384,40 +421,18 @@ public class Level {
                     }
 
                 } else {
-
-                    switch(this.grid[i][j].getType()){
-                        case WALL :
-                            string.append("🔳");
-                            break;
-
-                        case TRAP :
-                            string.append("🔗");
-                            break;
-
-                        case LOCKED_DOOR :
-                            string.append("🔐");
-                            break;
-
-                        case HOLE :
-                            string.append("💫");
-                            break;
-
-                        default : //EMPTY
-                            if(this.grid[i][j].containsBox()){
-                                string.append("🌑");
-
-                            } else if(this.grid[i][j].containsCoin()) {
-                                string.append("📀");
-
-                            } else {
-                                string.append("  ");
-                            }
-                    }
-
+                    string.append(this.grid[i][j].getSymbol());
                 }
                 
             }
             string.append("\n");
+        }
+
+        string.append("\n" + this.winCondition.label() + "\n");
+
+        if(this.blockEnemies > 0){
+            String s = this.blockEnemies > 1 ? "s" : "";
+            string.append("The enemies are frozen for " + this.blockEnemies + " more movement" + s + "\n");
         }
 
         return string.toString() + "\n" + this.player.toString() + "\n";
@@ -467,5 +482,69 @@ public class Level {
     @Override
     public int hashCode(){
         return Arrays.deepHashCode(this.grid);
+    }
+
+    public boolean isEmptyCell(int line, int column){
+        if(line < 0 || line >= this.getHeight() || column < 0 || column >= this.getWidth()){
+            throw new ArrayIndexOutOfBoundsException("You can't check if a cell out of the grid bounds is empty !");
+        }
+
+        return this.grid[line][column].getType() == CellType.EMPTY && !this.grid[line][column].containsBox();
+    }
+
+
+    public void use(int inventoryIndex){
+        this.player.use(inventoryIndex,this);
+    }
+
+    public void movePlayer(int line, int column){
+        this.player.setCoordinates(line,column);
+    }
+
+    public boolean playerEnemyCollision(){
+        Cell playerCell = this.grid[this.player.getCurrentLine()][this.player.getCurrentColumn()];
+        return this.occupiedCells.contains(playerCell);
+    }
+
+    public void damageEnemiesOnCollision(int damage){
+        int line = this.player.getCurrentLine();
+        int column = this.player.getCurrentColumn();
+
+        Cell playerCell = this.grid[line][column];
+
+        if(!this.occupiedCells.contains(playerCell)){
+            return ;
+        }
+        
+        this.occupiedCells.clear();
+        //Withdraw all the previous occupied cells
+
+        Iterator<Enemy> iterator = this.enemies.iterator();
+
+        while(iterator.hasNext()){
+            Enemy enemy = iterator.next();
+
+            if(enemy.sameCoordinates(this.player)){
+                enemy.modifyNumberOfHearts(damage);
+
+                if(enemy.getNumberOfHearts() <= 0){
+                    iterator.remove();
+                    this.player.incrementNumberOfKills();
+                    continue;
+                }
+
+                enemy.setCoordinates(enemy.getSpawnLine(),enemy.getSpawnColumn());
+            }
+            this.occupiedCells.add(this.getEntityCell(enemy));
+        }
+
+    }
+
+    public void playerCanLockpick(){
+        this.player.canLockpick();
+    }
+
+    public int getNumberOfEnemies(){
+        return this.enemies.size();
     }
 }

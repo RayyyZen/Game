@@ -14,8 +14,12 @@ import com.app.entity.*;
 import com.app.entity.enemy.*;
 import com.app.level.wincondition.CoinCondition;
 import com.app.level.wincondition.EnemyCondition;
+import com.app.level.wincondition.ItemCondition;
 import com.app.usable.item.consumable.Coin;
+import com.app.usable.item.consumable.Heart;
+import com.app.usable.item.equipable.End;
 import com.app.usable.item.equipable.Hourglass;
+import com.app.usable.item.equipable.Swap;
 import com.app.usable.item.equipable.Weapon;
 
 /**
@@ -27,16 +31,19 @@ import com.app.usable.item.equipable.Weapon;
 abstract class LevelLoader {
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H' and '\n' with a unique occurence of '1')
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O' and '\n' with a unique occurence of '1' and maximum one occurence of 'N')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
     private static boolean validContent(String content){
-        String validSymbols = "1 #*.DRGCBhWH\n";
+        String validSymbols = "1 #*.DRGCBhWHEON\n";
         //All the valid symbols that are allowed in the file
 
-        int counter = 0;
+        int counterPlayer = 0;
         //Counts the occurence of '1' in the level's grid
+
+        int counterEndItem = 0;
+        //Counts the occurence of 'N' in the level's grid
 
         for(int index = 0; index < content.length(); index++){
             char car = content.charAt(index);
@@ -46,12 +53,16 @@ abstract class LevelLoader {
             }
 
             if(car == '1'){
-                counter++;
+                counterPlayer++;
+            }
+
+            if(car == 'N'){
+                counterEndItem++;
             }
         }
 
-        return counter == 1;
-        //There is a unique player on the level's grid
+        return counterPlayer == 1 && counterEndItem <= 1;
+        //There is a unique player and maximum of one end item on the level's grid
     }
 
     /**
@@ -87,7 +98,7 @@ abstract class LevelLoader {
         int contentLength = content.length();
 
         if(!validContent(content)){
-            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#' and '\\n' with a unique occurence of '1'");
+            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O' and '\\n' with a unique occurence of '1' and maximum one occurence of 'N'");
         }
 
         int lines = 1;
@@ -122,6 +133,8 @@ abstract class LevelLoader {
         Cell[][] grid = new Cell[length][width];
         List<Enemy> enemies = new ArrayList<>();
         Set<Cell> occupiedCells = new HashSet<>();
+
+        boolean endItem = false;
 
         for(int index = 0; index < contentLength; index++){
 
@@ -198,6 +211,19 @@ abstract class LevelLoader {
                     grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Hourglass());
                     break;
 
+                case 'E' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Heart());
+                    break;
+
+                case 'O' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Swap());
+                    break;
+
+                case 'N' :
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new End());
+                    endItem = true;
+                    break;
+
             }
 
             if(enemy != null){//If an enemy was created
@@ -222,19 +248,29 @@ abstract class LevelLoader {
         player.setCoordinates(playerLine,playerColumn);
         player.setSpawnCoordinates(playerLine,playerColumn);
 
-        List<WinCondition> winConditions = new ArrayList<>();
+        WinCondition winCondition = null;
 
-        if(numberOfCoins > 0){
-            winConditions.add(new CoinCondition());
+        if(endItem){
+            winCondition = new ItemCondition();
+        
+        } else {
+            List<WinCondition> winConditions = new ArrayList<>();
+
+            if(numberOfCoins > 0){
+                winConditions.add(new CoinCondition());
+            }
+            if(enemies.size() > 0){
+                winConditions.add(new EnemyCondition());
+            }
+
+            if(winConditions.isEmpty()){
+                throw new IllegalStateException("The level doesn't contain any win condition !");
+            }
+
+            int randomIndex = ThreadLocalRandom.current().nextInt(0,winConditions.size());
+            winCondition = winConditions.get(randomIndex);
         }
-        if(enemies.size() > 0){
-            winConditions.add(new EnemyCondition());
-        }
 
-        int randomIndex = ThreadLocalRandom.current().nextInt(0,winConditions.size());
-
-        WinCondition randomWinCondition = winConditions.get(randomIndex);
-
-        return new Level(grid,player,enemies,occupiedCells,numberOfCoins,blockEnemies,randomWinCondition);
+        return new Level(grid,player,enemies,occupiedCells,numberOfCoins,blockEnemies,winCondition);
     }
 }

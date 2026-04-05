@@ -1,6 +1,8 @@
 package com.app.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import com.app.cell.CellType;
 import com.app.level.Level;
 import com.app.usable.Triggerable;
 import com.app.usable.Usable;
+import com.app.usable.UsableComparator;
 import com.app.usable.UseMode;
 import com.app.usable.item.Item;
 import com.app.usable.skill.Lockpicking;
@@ -133,6 +136,7 @@ public class Player extends Entity {
 
         if(this.inventory.size() < MAXINVENTORY){
             this.inventory.add(usable);
+            Collections.sort(this.inventory,new UsableComparator());
             return true;
         }
 

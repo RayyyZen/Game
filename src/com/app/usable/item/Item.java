@@ -8,7 +8,7 @@ import com.app.usable.Usable;
  * @since 5.0 (Fifth world)
  * @author Rayane
  */
-public abstract class Item implements Usable {
+public abstract class Item implements Usable, Comparable<Item> {
     
     private final String symbol;
 
@@ -18,5 +18,10 @@ public abstract class Item implements Usable {
 
     public String getItemSymbol(){
         return this.symbol;
+    }
+
+    @Override
+    public int compareTo(Item other){
+        return this.getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
     }
 }

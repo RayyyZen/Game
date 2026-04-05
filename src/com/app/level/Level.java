@@ -6,11 +6,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.app.cell.Cell;
 import com.app.cell.CellType;
+import com.app.cell.Coordinates;
 import com.app.entity.*;
 import com.app.entity.enemy.Enemy;
+import com.app.level.wincondition.ItemCondition;
 import com.app.usable.Usable;
 
 /**
@@ -546,5 +549,39 @@ public class Level {
 
     public int getNumberOfEnemies(){
         return this.enemies.size();
+    }
+
+    public void modifyPlayerHearts(int hearts){
+        this.player.modifyNumberOfHearts(hearts);
+    }
+
+    public void swapWithRandomEnemy(){
+        List<Enemy> enemies = new ArrayList<>();
+
+        int line = this.player.getCurrentLine();
+        int column = this.player.getCurrentColumn();
+
+        for(Enemy enemy : this.enemies){
+            if(enemy.validMovement(this.grid[line][column]) && this.player.validMovement(this.grid[enemy.getCurrentLine()][enemy.getCurrentColumn()])){
+                enemies.add(enemy);
+            }
+        }
+
+        if(enemies.isEmpty()){
+            return ;
+        }
+
+        int randomIndex = ThreadLocalRandom.current().nextInt(0,enemies.size());
+
+        Enemy randomEnemy = enemies.get(randomIndex);
+
+        this.player.setCoordinates(randomEnemy.getCurrentLine(),randomEnemy.getCurrentColumn());
+        randomEnemy.setCoordinates(line,column);
+    }
+
+    public void endItemWinCondition(){
+        if(this.winCondition instanceof ItemCondition){
+            ((ItemCondition) this.winCondition).end();
+        }
     }
 }

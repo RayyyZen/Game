@@ -1,7 +1,6 @@
 package com.app.entity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -12,8 +11,9 @@ import com.app.level.Level;
 import com.app.usable.Triggerable;
 import com.app.usable.Usable;
 import com.app.usable.UsableComparator;
-import com.app.usable.UseMode;
+import com.app.usable.Weapon;
 import com.app.usable.item.Item;
+import com.app.usable.skill.Bomb;
 import com.app.usable.skill.Lockpicking;
 import com.app.usable.skill.Skill;
 import com.app.usable.skill.Teleportation;
@@ -39,6 +39,8 @@ public class Player extends Entity {
     private boolean canLockpick;
 
     private int numberOfKills;
+
+    private int numberOfUsedWeapons;
 
     private List<Skill> unlockedSkills;
 
@@ -72,10 +74,12 @@ public class Player extends Entity {
         this.inventory = new ArrayList<>();
         this.canLockpick = false;
         this.numberOfKills = 0;
+        this.numberOfUsedWeapons = 0;
 
         this.unlockedSkills = new ArrayList<>();
         this.unlockedSkills.add(new Teleportation());
         this.unlockedSkills.add(new Lockpicking());
+        this.unlockedSkills.add(new Bomb());
 
         numberOfPlayers++;
     }
@@ -111,8 +115,16 @@ public class Player extends Entity {
         return this.numberOfKills;
     }
 
+    public int getNumberOfUsedWeapons(){
+        return this.numberOfUsedWeapons;
+    }
+
     public void incrementNumberOfKills(){
         this.numberOfKills++;
+    }
+
+    public void incrementNumberOfUsedWeapons(){
+        this.numberOfUsedWeapons++;
     }
 
     /**
@@ -148,7 +160,7 @@ public class Player extends Entity {
      * @param index The index of the usable from the inventory
      * @param level The level where the player is located
      */
-    public void use(int index, Level level){
+    public List<String> use(int index, Level level){
         if(index < 0 || index >= this.inventory.size()){
             throw new IndexOutOfBoundsException("The index of the usable from the inventory is out of bounds !");
         }
@@ -156,9 +168,16 @@ public class Player extends Entity {
         Usable usable = this.inventory.get(index);
         usable.use(level);
 
+        List<String> enemies = new ArrayList<>();
+        if(usable instanceof Weapon){
+            enemies.addAll(((Weapon) usable).getDamagedEnemies());
+        }
+
         if(usable instanceof Item){
             this.inventory.remove(usable);
         }
+
+        return enemies;
     }
 
     /**
@@ -201,38 +220,51 @@ public class Player extends Entity {
         return string.toString();
     }
 
-    public void activateAutomaticUsables(Level level){
+    public List<String> activateAutomaticUsables(Level level){
+        List<String> damagedEnemies = new ArrayList<>();
+
         Iterator<Usable> iterator = this.inventory.iterator();
 
         while(iterator.hasNext()){
             Usable usable = iterator.next();
 
-            if(usable instanceof Triggerable && ((Triggerable)usable).isTriggerable(level)){
+            if(usable instanceof Triggerable && ((Triggerable)usable).shouldTrigger(level)){
                 usable.use(level);
+                if(usable instanceof Weapon){
+                    damagedEnemies.addAll(((Weapon) usable).getDamagedEnemies());
+                }
+
                 if(usable instanceof Item){
                     iterator.remove();
                 }
             }
         }
+
+        return damagedEnemies;
     }
 
     public void canLockpick(){
         this.canLockpick = true;
     }
 
-    public void learnNewSkills(Level level){
+    public List<String> learnNewSkills(Level level){
+        List<String> newSkills = new ArrayList<>();
+
         Iterator<Skill> iterator = this.unlockedSkills.iterator();
 
         while(iterator.hasNext()){
             Skill skill = iterator.next();
 
-            if(skill.condition(this)){
+            if(this.inventory.size() < MAXINVENTORY && skill.condition(this)){
                 this.inventory.add(skill);
-                if(skill.getUseMode() == UseMode.ONETIME){
+                if(skill.shouldTrigger(level)){
                     skill.use(level);
                 }
+                newSkills.add(skill.getName());
                 iterator.remove();
             }
         }
+
+        return newSkills;
     }
 }

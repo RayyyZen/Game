@@ -1,5 +1,6 @@
 package com.app.usable.item;
 
+import com.app.level.Level;
 import com.app.usable.Usable;
 
 /**
@@ -10,18 +11,27 @@ import com.app.usable.Usable;
  */
 public abstract class Item implements Usable, Comparable<Item> {
     
+    private final String name;
+
     private final String symbol;
 
-    public Item(String symbol){
+    public Item(String name, String symbol){
+        this.name = name;
         this.symbol = symbol;
+    }
+
+    public String getName(){
+        return this.name;
     }
 
     public String getItemSymbol(){
         return this.symbol;
     }
 
+    public abstract void use(Level level);
+
     @Override
     public int compareTo(Item other){
-        return this.getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
+        return this.name.compareTo(other.name);
     }
 }

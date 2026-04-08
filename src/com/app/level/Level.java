@@ -335,7 +335,7 @@ public class Level {
     /**
      * This function launches an action according to the cell where the player is located
      */
-    public void effect(){
+    public List<String> effect(){
         int playerLine = this.player.getCurrentLine();
         int playerColumn = this.player.getCurrentColumn();
         //Get the player's coordinates
@@ -347,7 +347,11 @@ public class Level {
 
         cell.pickUp(this);
 
-        this.player.activateAutomaticUsables(this);
+        List<String> enemies = this.player.activateAutomaticUsables(this);
+
+        if(enemies.isEmpty()){
+            enemies = this.getCollidedEnemies();
+        }
 
         if(cell.getType() == CellType.TRAP){
             this.player.modifyNumberOfHearts(TRAP);
@@ -377,7 +381,7 @@ public class Level {
             }
         }
 
-        this.player.learnNewSkills(this);
+        return enemies;
 
     }
 
@@ -424,7 +428,7 @@ public class Level {
                     }
 
                 } else {
-                    string.append(this.grid[i][j].getSymbol());
+                    string.append(this.grid[i][j].getCellSymbol());
                 }
                 
             }
@@ -496,8 +500,8 @@ public class Level {
     }
 
 
-    public void use(int inventoryIndex){
-        this.player.use(inventoryIndex,this);
+    public List<String> use(int inventoryIndex){
+        return this.player.use(inventoryIndex,this);
     }
 
     public void movePlayer(int line, int column){
@@ -507,40 +511,6 @@ public class Level {
     public boolean playerEnemyCollision(){
         Cell playerCell = this.grid[this.player.getCurrentLine()][this.player.getCurrentColumn()];
         return this.occupiedCells.contains(playerCell);
-    }
-
-    public void damageEnemiesOnCollision(int damage){
-        int line = this.player.getCurrentLine();
-        int column = this.player.getCurrentColumn();
-
-        Cell playerCell = this.grid[line][column];
-
-        if(!this.occupiedCells.contains(playerCell)){
-            return ;
-        }
-        
-        this.occupiedCells.clear();
-        //Withdraw all the previous occupied cells
-
-        Iterator<Enemy> iterator = this.enemies.iterator();
-
-        while(iterator.hasNext()){
-            Enemy enemy = iterator.next();
-
-            if(enemy.sameCoordinates(this.player)){
-                enemy.modifyNumberOfHearts(damage);
-
-                if(enemy.getNumberOfHearts() <= 0){
-                    iterator.remove();
-                    this.player.incrementNumberOfKills();
-                    continue;
-                }
-
-                enemy.setCoordinates(enemy.getSpawnLine(),enemy.getSpawnColumn());
-            }
-            this.occupiedCells.add(this.getEntityCell(enemy));
-        }
-
     }
 
     public void playerCanLockpick(){
@@ -575,13 +545,80 @@ public class Level {
 
         Enemy randomEnemy = enemies.get(randomIndex);
 
-        this.player.setCoordinates(randomEnemy.getCurrentLine(),randomEnemy.getCurrentColumn());
+        int randomEnemyLine = randomEnemy.getCurrentLine();
+        int randomEnemyColumn = randomEnemy.getCurrentColumn();
+
+        boolean isOccupied = false;
+
+        for(Enemy enemy : this.enemies){
+            if(enemy != randomEnemy && enemy.equals(randomEnemy)){
+                isOccupied = true;
+                break;
+            }
+        }
+
+        if(!isOccupied){
+            this.occupiedCells.remove(this.grid[randomEnemyLine][randomEnemyLine]);
+        }
+
+        this.player.setCoordinates(randomEnemyLine,randomEnemyColumn);
         randomEnemy.setCoordinates(line,column);
+
+        this.occupiedCells.add(this.grid[line][column]);
     }
 
     public void endItemWinCondition(){
         if(this.winCondition instanceof ItemCondition){
             ((ItemCondition) this.winCondition).end();
         }
+    }
+
+    public List<String> damageEnemiesOnCoordinates(Coordinates coordinates, int damage){
+
+        List<String> damagedEnemies = new ArrayList<>();
+
+        if(coordinates == null){
+            throw new IllegalArgumentException("Coordinates are null !");
+        }
+
+        int line = coordinates.getLine();
+        int column = coordinates.getColumn();
+
+        Cell cell = this.grid[line][column];
+
+        if(!this.occupiedCells.contains(cell)){
+            return damagedEnemies;
+        }
+        
+        this.occupiedCells.clear();
+        //Withdraw all the previous occupied cells
+
+        Iterator<Enemy> iterator = this.enemies.iterator();
+
+        while(iterator.hasNext()){
+            Enemy enemy = iterator.next();
+
+            if(enemy.getCurrentLine() == line && enemy.getCurrentColumn() == column){
+                enemy.modifyNumberOfHearts(damage);
+
+                damagedEnemies.add(enemy.toString());
+
+                if(enemy.getNumberOfHearts() <= 0){
+                    iterator.remove();
+                    this.player.incrementNumberOfKills();
+                    continue;
+                }
+
+                enemy.setCoordinates(enemy.getSpawnLine(),enemy.getSpawnColumn());
+            }
+
+            this.occupiedCells.add(this.getEntityCell(enemy));
+        }
+
+        return damagedEnemies;
+    }
+
+    public void incrementPlayerNumberOfUsedWeapons(){
+        this.player.incrementNumberOfUsedWeapons();
     }
 }

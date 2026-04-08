@@ -1,6 +1,5 @@
 package com.app.usable.item.consumable;
 
-import com.app.level.Level;
 import com.app.usable.item.Item;
 
 /**
@@ -11,9 +10,8 @@ import com.app.usable.item.Item;
  */
 public abstract class Consumable extends Item {
     
-    public Consumable(String symbol){
-        super(symbol);
+    public Consumable(String name, String symbol){
+        super(name,symbol);
     }
 
-    public abstract void use(Level level);
 }

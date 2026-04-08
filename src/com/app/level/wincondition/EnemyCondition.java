@@ -5,7 +5,7 @@ import com.app.level.WinCondition;
 
 public class EnemyCondition implements WinCondition {
 
-    private static final String LABEL = "Eliminate all the enemies to finish the level !";
+    private static final String LABEL = "Eliminate all the enemies to finish the level ☠  !";
     
     public boolean win(Level level){
         return level.getNumberOfEnemies() == 0;

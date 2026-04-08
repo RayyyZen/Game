@@ -82,6 +82,7 @@ public class Ghost extends Enemy {
      * @param cell The cell that will be checked
      * @return true if the cell is valid for the ghost, or false otherwise
      */
+    @Override
     public boolean validMovement(Cell cell){
         return true;
     }

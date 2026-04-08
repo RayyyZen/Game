@@ -1,9 +1,10 @@
 package com.app.usable.item.equipable;
 
 import com.app.level.Level;
-import com.app.usable.UseMode;
 
 public class Hourglass extends Equipable {
+
+    private static final String NAME = "Hourglass";
     
     /**
      * The emoji symbol that represents each weapon
@@ -12,10 +13,8 @@ public class Hourglass extends Equipable {
 
     private static final int NUMBEROFMOVEMENTS = 10;
 
-    private static final UseMode MODE = UseMode.MANUAL;
-
     public Hourglass(){
-        super(SYMBOL,MODE);
+        super(NAME,SYMBOL);
     }
 
     public void use(Level level) {

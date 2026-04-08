@@ -7,14 +7,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.app.cell.Coordinates;
 import com.app.entity.Player;
 import com.app.level.Level;
-import com.app.usable.UseMode;
 
 public class Teleportation extends Skill {
 
-    private static final UseMode MODE = UseMode.MANUAL;
+    private static final String NAME = "Teleportation";
 
     public Teleportation(){
-        super(MODE);
+        super(NAME);
     }
 
     public void use(Level level){

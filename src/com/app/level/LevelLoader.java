@@ -20,7 +20,7 @@ import com.app.usable.item.consumable.Heart;
 import com.app.usable.item.equipable.End;
 import com.app.usable.item.equipable.Hourglass;
 import com.app.usable.item.equipable.Swap;
-import com.app.usable.item.equipable.Weapon;
+import com.app.usable.item.equipable.Sword;
 
 /**
  * The level loading class that loads a level from a valid file
@@ -31,12 +31,12 @@ import com.app.usable.item.equipable.Weapon;
 abstract class LevelLoader {
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O' and '\n' with a unique occurence of '1' and maximum one occurence of 'N')
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'N', 'K' and '\n' with a unique occurence of '1' and maximum one occurence of 'N')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
     private static boolean validContent(String content){
-        String validSymbols = "1 #*.DRGCBhWHEON\n";
+        String validSymbols = "1 #*.DRGCBhWHEONK\n";
         //All the valid symbols that are allowed in the file
 
         int counterPlayer = 0;
@@ -98,7 +98,7 @@ abstract class LevelLoader {
         int contentLength = content.length();
 
         if(!validContent(content)){
-            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O' and '\\n' with a unique occurence of '1' and maximum one occurence of 'N'");
+            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'N', 'K' and '\\n' with a unique occurence of '1' and maximum one occurence of 'N'");
         }
 
         int lines = 1;
@@ -195,6 +195,10 @@ abstract class LevelLoader {
                     enemy = new Hunter();
                     break;
 
+                case 'K' :
+                    enemy = new Skeleton();
+                    break;
+
                 case 'B' :
                     grid[line][column] = new Cell(coordinates, CellType.EMPTY, true, null);
                     break;
@@ -204,7 +208,7 @@ abstract class LevelLoader {
                     break;
 
                 case 'W' :
-                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Weapon());
+                    grid[line][column] = new Cell(coordinates, CellType.EMPTY, false, new Sword());
                     break;
 
                 case 'H' :

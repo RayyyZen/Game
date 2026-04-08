@@ -1,6 +1,7 @@
 package com.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -46,6 +47,7 @@ public class Main {
             int index = -1;
 
             List<String> names = null;
+            List<String> newSkills = null;
 
             do{
 
@@ -66,7 +68,7 @@ public class Main {
                     break;
                 }
 
-                View.displayScreen(level,names);
+                View.displayScreen(level,names,newSkills);
 
                 System.out.print("-> Choose  : ");
                 input = scanner.nextLine();
@@ -78,19 +80,22 @@ public class Main {
 
                 if(View.validInventoryIndex(player,input)){
                     int inventoryIndex = Integer.parseInt(input) - 1;
-                    level.use(inventoryIndex);
+                    names = level.use(inventoryIndex);
+                    
+
+                } else {
+                    level.movePlayer(View.inputToDirection(input));
+                    level.moveAllEnemies();
+                    names = new ArrayList<>();
                 }
 
-                level.movePlayer(View.inputToDirection(input));
-                level.moveAllEnemies();
+                names.addAll(level.effect());
 
-                names = level.getCollidedEnemies();
-
-                level.effect();
+                newSkills = player.learnNewSkills(level);
 
             }while(!level.gameOver());
 
-            View.displayEndScreen(level,names);
+            View.displayEndScreen(level,names,newSkills);
 
             if(!level.gameOver() || input.toLowerCase().equals("l")){
                 //It means the player has finished the levels or he wants to leave

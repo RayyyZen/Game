@@ -9,6 +9,8 @@ import com.app.level.Level;
  * @author Rayane
  */
 public interface Usable {
+
+    String getName();
     
     void use(Level level);
 

@@ -1,11 +1,13 @@
 package com.app.entity.enemy;
 
+import com.app.cell.Cell;
+import com.app.cell.CellType;
 import com.app.entity.Entity;
 import com.app.level.*;
 
 /**
  * The enemy class that contains his attributes and the total number of enemies that were created
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
@@ -48,4 +50,15 @@ public abstract class Enemy extends Entity {
      * @return A valid direction where the enemy will move
      */
     public abstract Direction getDirection(Level level);
+
+    /**
+     * Checks if a cell is valid according to the enemy's possible movements
+     * @param cell The cell that will be checked
+     * @return true if the cell is valid for the enemy, or false otherwise
+     */
+    @Override
+    public boolean validMovement(Cell cell){
+        CellType type = cell.getType();
+        return type == CellType.EMPTY && !cell.containsBox();
+    }
 }

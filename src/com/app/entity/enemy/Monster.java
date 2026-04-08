@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.app.cell.Cell;
-import com.app.cell.CellType;
 import com.app.level.Direction;
 import com.app.level.Level;
 
@@ -85,16 +83,5 @@ public class Monster extends Enemy {
 
         int randomIndex = ThreadLocalRandom.current().nextInt(0,directions.size());
         return directions.get(randomIndex);
-    }
-    
-    /**
-     * Checks if a cell is valid according to the monster's possible movements
-     * The monsters can't walk on traps
-     * @param cell The cell that will be checked
-     * @return true if the cell is valid for the monster, or false otherwise
-     */
-    public boolean validMovement(Cell cell){
-        CellType type = cell.getType();
-        return type == CellType.EMPTY && !cell.containsBox();
     }
 }

@@ -4,8 +4,6 @@ import com.app.level.Level;
 
 public interface Triggerable {
     
-    UseMode getUseMode();
-
-    boolean isTriggerable(Level level);
+    boolean shouldTrigger(Level level);
 
 }

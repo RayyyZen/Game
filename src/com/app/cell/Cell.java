@@ -6,7 +6,7 @@ import com.app.usable.item.Item;
 import com.app.usable.item.consumable.Consumable;
 
 /**
- * The cell class that contains its coordinates, its type and eventually a coin
+ * The cell class that contains its coordinates, its type and eventually a box and an item
  * @version 5.0 (Fifth world)
  * @since 3.0 (Third world)
  * @author Rayane
@@ -44,11 +44,11 @@ public class Cell {
     }
 
     /**
-     * The cell's constructor that takes as arguments the coordinates, the type and a variable indicating if it contains a coin
+     * The cell's constructor that takes as arguments the coordinates, the type, a variable indicating if it contains a box and eventually an item
      * @param coordinates The coordinates of the cell
      * @param type The type of the cell
      * @param containsBox The variable that indicates if the cell contains a box
-     * @param item The item that can possibly be located on the cell (this field can be null)
+     * @param item The item that can possibly be located on the cell (this field can be null if there is no item on the cell)
      */
     public Cell(Coordinates coordinates, CellType type, boolean containsBox, Item item){
         if(coordinates == null || coordinates.getLine() < 0 || coordinates.getColumn() < 0){
@@ -80,12 +80,22 @@ public class Cell {
         return this.containsBox;
     }
 
-    public int getLine(){
-        return this.coordinates.getLine();
-    }
+    /**
+     * Returns the cell's symbol according to its attributes
+     * @return the cell's symbol according to its attributes
+     */
+    public String getCellSymbol(){
 
-    public int getColumn(){
-        return this.coordinates.getColumn();
+        if(this.containsBox){
+            return "🌑";
+        }
+
+        if(this.item == null){
+            return this.type.getCellTypeSymbol();
+        }
+
+        return this.item.getItemSymbol();
+
     }
 
     /**
@@ -106,9 +116,8 @@ public class Cell {
     }
 
     /**
-     * Adds the item located on the cell to the player's inventory if it is an equipable, or use directly the item if it is a consumable
+     * Adds the item located on the cell to the player's inventory if it is an equipable, or use it directly if it is a consumable
      * @param level The level where the cell is located
-     * @param player The player that wants to pick up the item from the cell
      */
     public void pickUp(Level level){
         if(this.item != null){
@@ -124,37 +133,23 @@ public class Cell {
         }
     }
 
-    public String getSymbol(){
-
-        if(this.type != CellType.EMPTY){
-            return this.type.getCellTypeSymbol();
-        }
-
-        if(this.containsBox){
-            return "🌑";
-        }
-
-        if(this.item == null){
-            return "  ";
-        }
-
-        return this.item.getItemSymbol();
-
-    }
-
     /**
-     * Returns a String that contains the cell's attributs
-     * @return A String that contains the cell's attributs
+     * Returns a String that contains the cell's attributes
+     * @return a String that contains the cell's attributes
      */
     @Override
     public String toString(){
-        return "Cell :\n -> " + this.coordinates + "\n -> Type : " + this.type + "\n -> Contains box : " + this.containsBox + "\n -> Item : " + this.item.getClass().getName();
+        String string = "Cell :\n -> " + this.coordinates + "\n -> Type : " + this.type + "\n -> Contains box : " + this.containsBox;
+        if(this.item != null){
+            string += "\n -> Item : " + this.item.getName();
+        }
+        return string;
     }
 
     /**
      * Checks if a cell is equal to an object
      * @param obj The object that will be compared to the cell
-     * @return true if they are equal or false if they aren't
+     * @return true if they are equal, or false otherwise
      */
     @Override
     public boolean equals(Object obj){

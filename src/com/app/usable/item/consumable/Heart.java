@@ -3,6 +3,8 @@ package com.app.usable.item.consumable;
 import com.app.level.Level;
 
 public class Heart extends Consumable {
+
+    private static final String NAME = "HEART";
     
     /**
      * Number of hearts that the player gains from picking up a heart
@@ -15,7 +17,7 @@ public class Heart extends Consumable {
     private static final String SYMBOL = "❤ ";
 
     public Heart(){
-        super(SYMBOL);
+        super(NAME,SYMBOL);
     }
 
     public void use(Level level){

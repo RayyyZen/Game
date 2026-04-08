@@ -1,7 +1,7 @@
 package com.app.cell;
 
 /**
- * The enumeration that contains the type of each cell on the level's grid
+ * The enumeration that contains the type of each cell on the level's grid ant its representing symbol
  */
 public enum CellType {
 
@@ -30,14 +30,24 @@ public enum CellType {
      */
     HOLE("💫");
 
+    /**
+     * The symbol representing a each cell's type
+     */
     private final String symbol;
 
+    /**
+     * The cell type constructor
+     * @param symbol The symbol representing the cell type
+     */
     private CellType(String symbol){
         this.symbol = symbol;
     }
 
+    /**
+     * Returns the symbol representing the cell type
+     * @return the symbol representing the cell type
+     */
     public String getCellTypeSymbol(){
         return this.symbol;
     }
-    
 }

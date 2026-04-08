@@ -9,7 +9,7 @@ import com.app.level.Level;
 
 /**
  * The monster class that contains his attributes
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
@@ -47,6 +47,7 @@ public class Monster extends Enemy {
 
     /**
      * Finds a valid direction where the monster will move
+     * The monster moves in randomly in one of the available directions (up, down, left, right)
      * @param level The level that the monster is located on
      * @return A valid direction where the monster will move
      */

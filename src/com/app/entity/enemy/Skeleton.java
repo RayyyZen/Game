@@ -43,7 +43,7 @@ public class Skeleton extends Enemy {
     
     /**
      * Finds a valid direction where the skeleton will move
-     * The skeleton moves in the direction of the player only if he is one cell away from him
+     * The skeleton moves in the direction of the player only if he is one cell away from him, otherwise he doesn't move
      * @param level The level that the skeleton is located on
      * @return A valid direction where the skeleton will move
      */
@@ -61,6 +61,7 @@ public class Skeleton extends Enemy {
         if(Math.abs(gapLine) + Math.abs(gapColumn) <= 1){
             return Direction.NONE;
         }
+        // Checks if the skeleton and the player are one cell away from each other
 
         int lines = level.getHeight();
         int columns = level.getWidth();
@@ -76,7 +77,6 @@ public class Skeleton extends Enemy {
         
         } else if(skeletonColumn < playerColumn && skeletonColumn < columns - 1 && level.validCell(this,skeletonLine,skeletonColumn + 1)){
             return Direction.RIGHT;
-        
         }
 
         return Direction.NONE;

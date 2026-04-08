@@ -618,7 +618,7 @@ public class Level {
         return damagedEnemies;
     }
 
-    public void incrementPlayerNumberOfUsedWeapons(){
-        this.player.incrementNumberOfUsedWeapons();
+    public void incrementPlayerNumberOfUsedSwords(){
+        this.player.incrementNumberOfUsedSwords();
     }
 }

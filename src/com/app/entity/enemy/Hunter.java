@@ -5,13 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.app.cell.*;
+import com.app.cell.Coordinates;
 import com.app.level.Direction;
 import com.app.level.Level;
 
 /**
  * The hunter class that contains his attributes
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
@@ -96,6 +96,7 @@ public class Hunter extends Enemy {
     
     /**
      * Finds a valid direction where the hunter will move
+     * The hunter takes the shortest path that is leading to the player
      * @param level The level that the hunter is located on
      * @return A valid direction where the hunter will move
      */

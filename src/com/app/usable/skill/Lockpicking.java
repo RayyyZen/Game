@@ -18,7 +18,7 @@ public class Lockpicking extends Skill {
         this.used = true;
     }
 
-    public boolean condition(Player player){
+    public boolean conditionToUnlock(Player player){
         return player.getScore() >= 100;
     }
 

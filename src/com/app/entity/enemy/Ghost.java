@@ -6,7 +6,7 @@ import com.app.level.Level;
 
 /**
  * The ghost class that contains his attributes
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
@@ -44,8 +44,8 @@ public class Ghost extends Enemy {
     
     /**
      * Finds a valid direction where the ghost will move
-     * The ghost moves horizontally till he reaches the player's column then he moves vertically
-     * @param level The level that the ghost is located on
+     * The ghost moves horizontally until he reaches the player's column then he moves vertically
+     * @param level The level where the ghost is located
      * @return A valid direction where the ghost will move
      */
     public Direction getDirection(Level level){

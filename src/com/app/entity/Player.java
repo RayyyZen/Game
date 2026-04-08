@@ -8,15 +8,9 @@ import java.util.List;
 import com.app.cell.Cell;
 import com.app.cell.CellType;
 import com.app.level.Level;
-import com.app.usable.Triggerable;
-import com.app.usable.Usable;
-import com.app.usable.UsableComparator;
-import com.app.usable.Weapon;
+import com.app.usable.*;
 import com.app.usable.item.Item;
-import com.app.usable.skill.Bomb;
-import com.app.usable.skill.Lockpicking;
-import com.app.usable.skill.Skill;
-import com.app.usable.skill.Teleportation;
+import com.app.usable.skill.*;
 
 /**
  * The player class that contains his attributes and the total number of players that were created
@@ -36,18 +30,30 @@ public class Player extends Entity {
      */
     private List<Usable> inventory;
 
-    private boolean canLockpick;
-
-    private int numberOfKills;
-
-    private int numberOfUsedWeapons;
-
-    private List<Skill> unlockedSkills;
-
     /**
      * The maximum number of usables that each player can have at once
      */
     private static final int MAXINVENTORY = 5;
+
+    /**
+     * Indicates if the player can open locked doors or not
+     */
+    private boolean canLockpick;
+
+    /**
+     * The number of kills of the player
+     */
+    private int numberOfKills;
+
+    /**
+     * The number of swords the player used
+     */
+    private int numberOfUsedSwords;
+
+    /**
+     * The skills that the player didn't unlock yet
+     */
+    private List<Skill> unlockedSkills;
 
     /**
      * The number of players that were created
@@ -60,7 +66,7 @@ public class Player extends Entity {
     private static final int HEARTS = 5;
 
     /**
-     * The emoji that represents the players
+     * The emoji symbol that represents each player
      */
     private static final String SYMBOL = "🐱‍👤";
 
@@ -74,7 +80,7 @@ public class Player extends Entity {
         this.inventory = new ArrayList<>();
         this.canLockpick = false;
         this.numberOfKills = 0;
-        this.numberOfUsedWeapons = 0;
+        this.numberOfUsedSwords = 0;
 
         this.unlockedSkills = new ArrayList<>();
         this.unlockedSkills.add(new Teleportation());
@@ -100,31 +106,35 @@ public class Player extends Entity {
     }
 
     /**
+     * Returns the player's inventory size
+     * @return The player's inventory size
+     */
+    public int getInventorySize(){
+        return this.inventory.size();
+    }
+
+    /**
+     * Returns the player's number of kills
+     * @return The player's number of kills
+     */
+    public int getNumberOfKills(){
+        return this.numberOfKills;
+    }
+
+    /**
+     * Returns the number of swords the player used
+     * @return The number of swords the player used
+     */
+    public int getNumberOfUsedSwords(){
+        return this.numberOfUsedSwords;
+    }
+
+    /**
      * Returns the number of players created
      * @return The number of players created
      */
     public static int getNumberOfPlayers(){
         return numberOfPlayers;
-    }
-
-    public int getInventorySize(){
-        return this.inventory.size();
-    }
-
-    public int getNumberOfKills(){
-        return this.numberOfKills;
-    }
-
-    public int getNumberOfUsedWeapons(){
-        return this.numberOfUsedWeapons;
-    }
-
-    public void incrementNumberOfKills(){
-        this.numberOfKills++;
-    }
-
-    public void incrementNumberOfUsedWeapons(){
-        this.numberOfUsedWeapons++;
     }
 
     /**
@@ -137,13 +147,34 @@ public class Player extends Entity {
     }
 
     /**
+     * Gives the player the ability to open locked doors
+     */
+    public void canLockpick(){
+        this.canLockpick = true;
+    }
+
+    /**
+     * Increments by one the number of kills that the player has
+     */
+    public void incrementNumberOfKills(){
+        this.numberOfKills++;
+    }
+
+    /**
+     * Increments by one the number of swords that the player used
+     */
+    public void incrementNumberOfUsedSwords(){
+        this.numberOfUsedSwords++;
+    }
+
+    /**
      * Adds a usable to the player's inventory
      * @param usable The usable that will be added to the player's inventory
      * @return True if the usable could have been added, or false otherwise
      */
     public boolean addUsable(Usable usable){
         if(usable == null){
-            throw new IllegalArgumentException("The player tried adding a null Usable !");
+            throw new IllegalArgumentException("The player tried adding a null usable");
         }
 
         if(this.inventory.size() < MAXINVENTORY){
@@ -159,25 +190,81 @@ public class Player extends Entity {
      * Use an item or a skill from the inventory
      * @param index The index of the usable from the inventory
      * @param level The level where the player is located
+     * @return A list of the enemies that were damaged by the player while using the item or skill
      */
     public List<String> use(int index, Level level){
         if(index < 0 || index >= this.inventory.size()){
-            throw new IndexOutOfBoundsException("The index of the usable from the inventory is out of bounds !");
+            throw new IndexOutOfBoundsException("The index of the usable from the inventory that the player wants to use is out of bounds");
         }
 
         Usable usable = this.inventory.get(index);
         usable.use(level);
 
-        List<String> enemies = new ArrayList<>();
+        List<String> damagedEnemies = null;
         if(usable instanceof Weapon){
-            enemies.addAll(((Weapon) usable).getDamagedEnemies());
+            damagedEnemies = (((Weapon) usable).getDamagedEnemies());
         }
 
         if(usable instanceof Item){
             this.inventory.remove(usable);
         }
+        // Removes the usable from the inventory in case it is an item
 
-        return enemies;
+        return damagedEnemies;
+    }
+
+    /**
+     * Activates all the automatic usables contained in the player's inventory
+     * @param level The level where the player is located
+     * @return A list of the enemies that were damaged by the player while using the automatic items or skills
+     */
+    public List<String> activateAutomaticUsables(Level level){
+        List<String> damagedEnemies = new ArrayList<>();
+
+        Iterator<Usable> iterator = this.inventory.iterator();
+
+        while(iterator.hasNext()){
+            Usable usable = iterator.next();
+
+            if(usable instanceof Triggerable && ((Triggerable) usable).shouldTrigger(level)){
+                usable.use(level);
+                if(usable instanceof Weapon){
+                    damagedEnemies.addAll(((Weapon) usable).getDamagedEnemies());
+                }
+
+                if(usable instanceof Item){
+                    iterator.remove();
+                }
+            }
+        }
+
+        return damagedEnemies;
+    }
+
+    /**
+     * Unlocks new skills according to the player's progress
+     * @param level The level where the player is located
+     * @return A list of the names of the new skills that the player unlocked
+     */
+    public List<String> unlockNewSkills(Level level){
+        List<String> newSkills = new ArrayList<>();
+
+        Iterator<Skill> iterator = this.unlockedSkills.iterator();
+
+        while(iterator.hasNext()){
+            Skill skill = iterator.next();
+
+            if(this.inventory.size() < MAXINVENTORY && skill.conditionToUnlock(this)){
+                this.inventory.add(skill);
+                if(skill.shouldTrigger(level)){
+                    skill.use(level);
+                }
+                newSkills.add(skill.getName());
+                iterator.remove();
+            }
+        }
+
+        return newSkills;
     }
 
     /**
@@ -193,7 +280,7 @@ public class Player extends Entity {
 
     /**
      * Returns a String that contains the player's attributes with a certain format
-     * @return A String that contains the attributs of the player
+     * @return A String that contains the attributes of the player
      */
     @Override
     public String toString(){
@@ -213,58 +300,10 @@ public class Player extends Entity {
 
         int count = 1;
         for(Usable usable : this.inventory){
-            string.append("\n--> " + count + " : " + usable.getClass().getSimpleName());
+            string.append("\n--> " + count + " : " + usable.getName());
             count++;
         }
 
         return string.toString();
-    }
-
-    public List<String> activateAutomaticUsables(Level level){
-        List<String> damagedEnemies = new ArrayList<>();
-
-        Iterator<Usable> iterator = this.inventory.iterator();
-
-        while(iterator.hasNext()){
-            Usable usable = iterator.next();
-
-            if(usable instanceof Triggerable && ((Triggerable)usable).shouldTrigger(level)){
-                usable.use(level);
-                if(usable instanceof Weapon){
-                    damagedEnemies.addAll(((Weapon) usable).getDamagedEnemies());
-                }
-
-                if(usable instanceof Item){
-                    iterator.remove();
-                }
-            }
-        }
-
-        return damagedEnemies;
-    }
-
-    public void canLockpick(){
-        this.canLockpick = true;
-    }
-
-    public List<String> learnNewSkills(Level level){
-        List<String> newSkills = new ArrayList<>();
-
-        Iterator<Skill> iterator = this.unlockedSkills.iterator();
-
-        while(iterator.hasNext()){
-            Skill skill = iterator.next();
-
-            if(this.inventory.size() < MAXINVENTORY && skill.condition(this)){
-                this.inventory.add(skill);
-                if(skill.shouldTrigger(level)){
-                    skill.use(level);
-                }
-                newSkills.add(skill.getName());
-                iterator.remove();
-            }
-        }
-
-        return newSkills;
     }
 }

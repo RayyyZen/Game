@@ -31,7 +31,7 @@ import com.app.usable.item.equipable.Sword;
 abstract class LevelLoader {
 
     /**
-     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'N', 'K' and '\n' with a unique occurence of '1' and maximum one occurence of 'N')
+     * Checks if a file's content is valid (must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'K' and '\n' with a unique occurence of '1' and maximum one occurence of 'N')
      * @param content The file's content
      * @return true if the file's content is valid, or false otherwise
      */
@@ -98,7 +98,7 @@ abstract class LevelLoader {
         int contentLength = content.length();
 
         if(!validContent(content)){
-            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'N', 'K' and '\\n' with a unique occurence of '1' and maximum one occurence of 'N'");
+            throw new IllegalArgumentException("The file's content is not valid, it must contain only these symbols : ' ', '#', '.', '*', 'D', 'R', 'G', 'C', 'B', 'h', 'W', 'H', 'E', 'O', 'K' and '\\n' with a unique occurence of '1' and maximum one occurence of 'N'");
         }
 
         int lines = 1;

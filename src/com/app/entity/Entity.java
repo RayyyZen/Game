@@ -5,7 +5,7 @@ import com.app.cell.Coordinates;
 
 /**
  * The entity class that contains his name, the number of hearts he has, his spawn and current coordinates on a level's grid
- * @version 4.0 (Fourth world)
+ * @version 5.0 (Fifth world)
  * @since 4.0 (Fourth world)
  * @author Rayane
  */
@@ -22,6 +22,11 @@ public abstract class Entity {
     private int numberOfHearts;
 
     /**
+     * The emoji symbol that represents the entity
+     */
+    private final String symbol;
+
+    /**
      * The current coordinates of the entity on a level's grid
      */
     private Coordinates coordinates;
@@ -32,12 +37,7 @@ public abstract class Entity {
     private Coordinates spawnCoordinates;
 
     /**
-     * The emoji symbol that represents the entity
-     */
-    private final String symbol;
-
-    /**
-     * The entity constructor that takes as an argument a name and a number of hearts
+     * The entity constructor that takes as an argument a name, a number of hearts and an emoji symbol
      * @param name The name of the entity
      * @param numberOfHearts The initial number of hearts of the entity
      * @param symbol The emoji symbol that represents the entity
@@ -64,6 +64,14 @@ public abstract class Entity {
      */
     public int getNumberOfHearts(){
         return this.numberOfHearts;
+    }
+
+    /**
+     * Returns the emoji symbol of the entity
+     * @return the emoji symbol of the entity
+     */
+    public String getSymbol(){
+        return this.symbol;
     }
 
     /**
@@ -119,14 +127,6 @@ public abstract class Entity {
      */
     public boolean sameCoordinates(Entity entity){
         return this.coordinates != null && entity != null && this.coordinates.equals(entity.coordinates);
-    }
-
-    /**
-     * Returns the emoji symbol of the entity according to its type
-     * @return the emoji symbol of the entity according to its type
-     */
-    public String getSymbol(){
-        return this.symbol;
     }
 
     /**
@@ -233,7 +233,7 @@ public abstract class Entity {
         }
 
         Entity entity = (Entity)obj;
-        return this.name.toLowerCase().equals(entity.getName().toLowerCase());
+        return this.name.toLowerCase().equals(entity.name.toLowerCase());
     }
 
     /**

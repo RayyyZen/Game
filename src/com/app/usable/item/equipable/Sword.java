@@ -37,7 +37,7 @@ public class Sword extends Equipable implements Weapon {
 
         this.damagedEnemies = level.damageEnemiesOnCoordinates(new Coordinates(line,column),DAMAGE);
 
-        level.incrementPlayerNumberOfUsedWeapons();
+        level.incrementPlayerNumberOfUsedSwords();
     }
 
     public List<String> getDamagedEnemies(){

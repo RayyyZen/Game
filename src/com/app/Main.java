@@ -91,7 +91,7 @@ public class Main {
 
                 names.addAll(level.effect());
 
-                newSkills = player.learnNewSkills(level);
+                newSkills = player.unlockNewSkills(level);
 
             }while(!level.gameOver());
 

@@ -27,7 +27,7 @@ public abstract class Skill implements Usable, Triggerable, Comparable<Skill> {
         return false;
     }
 
-    public abstract boolean condition(Player player);
+    public abstract boolean conditionToUnlock(Player player);
 
     @Override
     public int compareTo(Skill other){

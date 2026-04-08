@@ -54,8 +54,8 @@ public class Bomb extends Skill implements Weapon {
         }
     }
 
-    public boolean condition(Player player){
-        return player.getNumberOfUsedWeapons() >= 5;
+    public boolean conditionToUnlock(Player player){
+        return player.getNumberOfUsedSwords() >= 5;
     }
 
     public List<String> getDamagedEnemies(){
